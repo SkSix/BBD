@@ -71,14 +71,42 @@ function generateGalleryHTML() {
             const subDestPath = path.join(imageDest, subFile);
             
             if (fs.lstatSync(subSrcPath).isDirectory()) {
+                // Copy directory contents
                 fs.mkdirSync(subDestPath, { recursive: true });
                 const subSubFiles = fs.readdirSync(subSrcPath);
                 subSubFiles.forEach(subSubFile => {
                     const subSubSrcPath = path.join(subSrcPath, subSubFile);
                     const subSubDestPath = path.join(subDestPath, subSubFile);
-                    fs.copyFileSync(subSubSrcPath, subSubDestPath);
+                    
+                    if (fs.lstatSync(subSubSrcPath).isDirectory()) {
+                        // Copy sub-sub directories
+                        fs.mkdirSync(subSubDestPath, { recursive: true });
+                        const subSubSubFiles = fs.readdirSync(subSubSrcPath);
+                        subSubSubFiles.forEach(subSubSubFile => {
+                            const subSubSubSrcPath = path.join(subSubSrcPath, subSubSubFile);
+                            const subSubSubDestPath = path.join(subSubDestPath, subSubSubFile);
+                            
+                            if (fs.lstatSync(subSubSubSrcPath).isDirectory()) {
+                                // Copy sub-sub-sub directories
+                                fs.mkdirSync(subSubSubDestPath, { recursive: true });
+                                const subSubSubSubFiles = fs.readdirSync(subSubSubSrcPath);
+                                subSubSubSubFiles.forEach(subSubSubSubFile => {
+                                    const subSubSubSubSrcPath = path.join(subSubSubSrcPath, subSubSubSubFile);
+                                    const subSubSubSubDestPath = path.join(subSubSubDestPath, subSubSubSubFile);
+                                    fs.copyFileSync(subSubSubSubSrcPath, subSubSubSubDestPath);
+                                });
+                            } else {
+                                // Copy file
+                                fs.copyFileSync(subSubSubSrcPath, subSubSubDestPath);
+                            }
+                        });
+                    } else {
+                        // Copy file
+                        fs.copyFileSync(subSubSrcPath, subSubDestPath);
+                    }
                 });
             } else {
+                // Copy file
                 fs.copyFileSync(subSrcPath, subDestPath);
             }
         });
