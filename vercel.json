@@ -7,6 +7,12 @@
     }
   ],
   "outputDirectory": "dist",
+  "includeFiles": [
+    "image/**/*",
+    "*.html",
+    "*.js",
+    "*.css"
+  ],
   "routes": [
     {
       "src": "/gallery-items.html",
