@@ -29,7 +29,7 @@ function generateGalleryHTML() {
                 if (['.jpg', '.jpeg', '.png', '.gif'].includes(ext)) {
                     // Create gallery item HTML
                     // Use relative paths for images
-                    const relativePath = filePath.replace('image/', '');
+                    const relativePath = filePath;
                     const galleryItem = `
                         <div class="gallery-item category-${category}" onclick="openLightbox('${relativePath}', '${file}')">
                             <img src="${relativePath}" alt="${file}">
