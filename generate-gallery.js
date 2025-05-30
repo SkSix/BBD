@@ -31,8 +31,8 @@ function generateGalleryHTML() {
                     // Use relative paths for images
                     const relativePath = filePath.replace('image/', '');
                     const galleryItem = `
-                        <div class="gallery-item category-${category}" onclick="openLightbox('/image/${relativePath}', '${file}')">
-                            <img src="/image/${relativePath}" alt="${file}">
+                        <div class="gallery-item category-${category}" onclick="openLightbox('${relativePath}', '${file}')">
+                            <img src="${relativePath}" alt="${file}">
                             <div class="gallery-overlay">
                                 <i class="fas fa-expand"></i>
                                 <span class="category-label">${category.charAt(0).toUpperCase() + category.slice(1)}</span>
