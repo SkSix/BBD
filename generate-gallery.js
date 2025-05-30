@@ -5,7 +5,6 @@ const path = require('path');
 function generateGalleryHTML() {
     // Define the categories and their corresponding folders
     const categories = {
-        'all': 'image/gallery',
         'wedding': 'image/gallery/wedding',
         'engagement': 'image/gallery/engagement',
         'pre-wedding': 'image/gallery/Pre_Wedding',
