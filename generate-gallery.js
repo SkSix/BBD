@@ -16,38 +16,33 @@ function generateGalleryHTML() {
     
     // Process each category
     for (const [category, folderPath] of Object.entries(categories)) {
-        // Skip 'all' category since it's just a placeholder
-        if (category === 'all') continue;
-        
-        // Create the folder if it doesn't exist
-        const fullPath = path.join(__dirname, folderPath);
-        if (!fs.existsSync(fullPath)) {
-            fs.mkdirSync(fullPath, { recursive: true });
-        }
-        
-        // Read all files in the category folder
-        const files = fs.readdirSync(fullPath);
-        
-        // Generate HTML for each image in this category
-        files.forEach(file => {
-            const filePath = path.join(folderPath, file);
-            const ext = path.extname(file).toLowerCase();
+        try {
+            // Read all files in the category folder
+            const files = fs.readdirSync(folderPath);
             
-            // Only process image files
-            if (['.jpg', '.jpeg', '.png', '.gif'].includes(ext)) {
-                // Create gallery item HTML
-                const galleryItem = `
-                    <div class="gallery-item category-${category}" onclick="openLightbox('${filePath}', '${file}')">
-                        <img src="${filePath}" alt="${file}">
-                        <div class="gallery-overlay">
-                            <i class="fas fa-expand"></i>
-                            <span class="category-label">${category.charAt(0).toUpperCase() + category.slice(1)}</span>
+            // Generate HTML for each image in this category
+            files.forEach(file => {
+                const filePath = path.join(folderPath, file);
+                const ext = path.extname(file).toLowerCase();
+                
+                // Only process image files
+                if (['.jpg', '.jpeg', '.png', '.gif'].includes(ext)) {
+                    // Create gallery item HTML
+                    const galleryItem = `
+                        <div class="gallery-item category-${category}" onclick="openLightbox('${filePath}', '${file}')">
+                            <img src="${filePath}" alt="${file}">
+                            <div class="gallery-overlay">
+                                <i class="fas fa-expand"></i>
+                                <span class="category-label">${category.charAt(0).toUpperCase() + category.slice(1)}</span>
+                            </div>
                         </div>
-                    </div>
-                `;
-                galleryItems.push(galleryItem);
-            }
-        });
+                    `;
+                    galleryItems.push(galleryItem);
+                }
+            });
+        } catch (error) {
+            console.log(`Warning: Could not read folder ${folderPath}: ${error.message}`);
+        }
     }
     
     // Generate final HTML
@@ -62,32 +57,7 @@ function generateGalleryHTML() {
     console.log('Gallery HTML generated successfully!');
 }
 
-// Watch for changes in all category folders
-function watchGalleryDirectory() {
-    // Define the categories and their corresponding folders
-    const categories = {
-        'wedding': 'image/gallery/wedding',
-        'engagement': 'image/gallery/engagement',
-        'Pre-Wedding': 'image/gallery/Pre-Wedding',
-        'family': 'image/gallery/family'
-    };
-    
-    // Watch each category folder
-    for (const [category, folderPath] of Object.entries(categories)) {
-        const fullPath = path.join(__dirname, folderPath);
-        
-        fs.watch(fullPath, (eventType, filename) => {
-            if (eventType === 'change' || eventType === 'rename') {
-                console.log(`Detected change in ${category} folder: ${filename}`);
-                generateGalleryHTML();
-            }
-        });
-    }
-}
-
-// Generate gallery on startup
-console.log('Generating initial gallery...');
+// Generate gallery once for deployment
+console.log('Generating gallery for deployment...');
 generateGalleryHTML();
-
-// Start watching for changes
-watchGalleryDirectory();
+console.log('Gallery generation complete!');
