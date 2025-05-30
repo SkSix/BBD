@@ -10,7 +10,7 @@
     <!-- Header Section -->
     <div id="header-placeholder"></div>
     <script>
-      fetch("header.html")
+      fetch("header.html?nocache=" + Date.now())
         .then(response => response.text())
         .then(data => {
           document.getElementById("header-placeholder").innerHTML = data;
