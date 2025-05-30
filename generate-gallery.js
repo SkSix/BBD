@@ -60,43 +60,60 @@ function generateGalleryHTML() {
         fs.mkdirSync(distDir, { recursive: true });
     }
 
-    // Create symbolic links for necessary files
-    const filesToLink = ['index.html', 'gallery.html', 'package.json', 'vercel.json'];
-    filesToLink.forEach(file => {
+    // Copy necessary files to dist
+    const filesToCopy = ['index.html', 'gallery.html', 'package.json', 'vercel.json'];
+    filesToCopy.forEach(file => {
         const srcPath = path.join(__dirname, file);
         const destPath = path.join(distDir, file);
         if (fs.existsSync(srcPath)) {
             try {
-                // Remove existing file if it exists
-                if (fs.existsSync(destPath)) {
-                    fs.unlinkSync(destPath);
+                // Ensure destination directory exists
+                const destDir = path.dirname(destPath);
+                if (!fs.existsSync(destDir)) {
+                    fs.mkdirSync(destDir, { recursive: true });
                 }
-                // Create symbolic link
-                fs.symlinkSync(srcPath, destPath, 'file');
+                // Copy file
+                fs.copyFileSync(srcPath, destPath);
             } catch (error) {
-                console.log(`Error creating symlink for ${file}: ${error.message}`);
+                console.log(`Error copying ${file}: ${error.message}`);
             }
         }
     });
 
-    // Create symbolic link for image directory
+    // Copy image directory
+    function copyDirSync(src, dest) {
+        if (!fs.existsSync(dest)) {
+            fs.mkdirSync(dest, { recursive: true });
+        }
+        
+        const entries = fs.readdirSync(src, { withFileTypes: true });
+        
+        for (const entry of entries) {
+            const srcPath = path.join(src, entry.name);
+            const destPath = path.join(dest, entry.name);
+            
+            if (entry.isDirectory()) {
+                copyDirSync(srcPath, destPath);
+            } else {
+                fs.copyFileSync(srcPath, destPath);
+            }
+        }
+    }
+
     try {
         const imageSrc = path.join(__dirname, 'image');
         const imageDest = path.join(distDir, 'image');
         if (fs.existsSync(imageSrc)) {
-            if (fs.existsSync(imageDest)) {
-                fs.unlinkSync(imageDest);
-            }
-            fs.symlinkSync(imageSrc, imageDest, 'dir');
+            copyDirSync(imageSrc, imageDest);
         }
     } catch (error) {
-        console.log(`Error creating symlink for image directory: ${error.message}`);
+        console.log(`Error copying image directory: ${error.message}`);
     }
 
     // Write gallery-items.html to dist directory
     fs.writeFileSync(path.join(distDir, 'gallery-items.html'), galleryHTML);
     console.log('Gallery HTML generated successfully!');
-    console.log('Symbolic links created in dist directory');
+    console.log('Files copied to dist directory');
 }
 
 // Generate gallery once for deployment

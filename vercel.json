@@ -3,18 +3,10 @@
   "builds": [
     {
       "src": "package.json",
-      "use": "@vercel/static-build"
+      "use": "@vercel/static"
     }
   ],
-  "outputDirectory": "dist",
   "routes": [
-    {
-      "src": "/gallery-items.html",
-      "dest": "/gallery-items.html"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/$1"
-    }
+    { "src": "/(.*)", "dest": "/$1" }
   ]
 }
