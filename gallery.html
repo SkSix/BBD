@@ -12,14 +12,47 @@
             margin: 40px auto;
             padding: 20px;
         }
-        
+
+        .gallery-filters {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            padding: 0 10px;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            background: #f5f5f5;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .filter-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .filter-btn.active {
+            background: #ffd700;
+            color: #333;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
         .gallery-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 20px;
             padding: 20px;
         }
-        
+
         .gallery-item {
             position: relative;
             cursor: pointer;
@@ -27,23 +60,30 @@
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s ease;
+            opacity: 0;
+            animation: fadeIn 0.5s ease forwards;
         }
-        
+
         .gallery-item:hover {
             transform: scale(1.05);
         }
-        
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
         .gallery-item img {
             width: 100%;
             height: 400px;
             object-fit: cover;
             transition: opacity 0.3s ease;
         }
-        
+
         .gallery-item:hover img {
             opacity: 0.8;
         }
-        
+
         .gallery-overlay {
             position: absolute;
             top: 0;
@@ -58,11 +98,21 @@
             opacity: 0;
             transition: opacity 0.3s ease;
         }
-        
+
         .gallery-item:hover .gallery-overlay {
             opacity: 1;
         }
-        
+
+        .category-label {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+        }
+
         .lightbox {
             display: none;
             position: fixed;
@@ -75,13 +125,13 @@
             align-items: center;
             z-index: 1000;
         }
-        
+
         .lightbox img {
             max-width: 90%;
             max-height: 90vh;
             object-fit: contain;
         }
-        
+
         .lightbox-controls {
             position: absolute;
             top: 20px;
@@ -96,6 +146,7 @@
     <!-- Header Section -->
     <div id="header-placeholder"></div>
     <script>
+        // Prevent caching by adding multiple parameters
         fetch("header.html?nocache=" + Date.now())
             .then(response => response.text())
             .then(data => {
@@ -103,30 +154,27 @@
             });
     </script>
 
+    <!-- Filter Buttons -->
+    <div class="gallery-filters">
+        <button class="filter-btn active" onclick="filterGallery('all')">All</button>
+        <button class="filter-btn" onclick="filterGallery('wedding')">Wedding</button>
+        <button class="filter-btn" onclick="filterGallery('engagement')">Engagement</button>
+        <button class="filter-btn" onclick="filterGallery('Pre-Wedding')">Pre Wedding</button>
+        <button class="filter-btn" onclick="filterGallery('family')">Family</button>
+    </div>
+
     <div class="gallery-container">
         <h1 class="section-title">Our Gallery</h1>
-        <div class="gallery-grid">
-            <!-- Add your gallery items here -->
-            <div class="gallery-item" onclick="openLightbox('image/gallery1.jpg', 'Wedding Ceremony')">
-                <img src="image/gallery1.jpg" alt="Wedding Ceremony">
-                <div class="gallery-overlay">
-                    <i class="fas fa-expand"></i>
-                </div>
-            </div>
-            <div class="gallery-item" onclick="openLightbox('image/gallery2.jpg', 'Bride Portrait')">
-                <img src="image/gallery2.jpg" alt="Bride Portrait">
-                <div class="gallery-overlay">
-                    <i class="fas fa-expand"></i>
-                </div>
-            </div>
-            <div class="gallery-item" onclick="openLightbox('image/gallery3.jpg', 'Couple Dance')">
-                <img src="image/gallery3.jpg" alt="Couple Dance">
-                <div class="gallery-overlay">
-                    <i class="fas fa-expand"></i>
-                </div>
-            </div>
-            <!-- Add more gallery items as needed -->
-        </div>
+        <!-- Gallery items will be dynamically loaded from gallery-items.html -->
+        <div id="gallery-placeholder"></div>
+        <script>
+            // Load gallery items dynamically
+            fetch("gallery-items.html")
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById("gallery-placeholder").innerHTML = data;
+                });
+        </script>
     </div>
 
     <!-- Lightbox -->
@@ -137,6 +185,32 @@
     </div>
 
     <script>
+        // Filter gallery items by category
+        function filterGallery(category) {
+            // Update active filter button
+            document.querySelectorAll('.filter-btn').forEach(button => {
+                button.classList.remove('active');
+                if (button.getAttribute('onclick').includes(category)) {
+                    button.classList.add('active');
+                }
+            });
+
+            // Show/hide gallery items based on category
+            const items = document.querySelectorAll('.gallery-item');
+            items.forEach(item => {
+                if (category === 'all') {
+                    item.style.display = 'block';
+                } else {
+                    const categoryClass = `category-${category.toLowerCase().replace(/\s+/g, '-')}`;
+                    if (item.classList.contains(categoryClass)) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                }
+            });
+        }
+
         function openLightbox(imageSrc, caption) {
             document.getElementById('lightbox').style.display = 'flex';
             document.getElementById('lightbox-image').src = imageSrc;
