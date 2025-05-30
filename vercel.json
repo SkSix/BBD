@@ -13,6 +13,10 @@
       "dest": "/gallery-items.html"
     },
     {
+      "src": "/image/(.*)",
+      "dest": "/image/$1"
+    },
+    {
       "src": "/(.*)",
       "dest": "/$1"
     }

@@ -58,10 +58,10 @@ function generateGalleryHTML() {
         fs.mkdirSync(distDir, { recursive: true });
     }
     
-    // Copy all files to dist directory
+    // Copy all files to dist directory, excluding image directory
     const files = fs.readdirSync(__dirname);
     files.forEach(file => {
-        if (file !== 'dist' && !file.startsWith('.')) {
+        if (file !== 'dist' && !file.startsWith('.') && file !== 'image') {
             const srcPath = path.join(__dirname, file);
             const destPath = path.join(distDir, file);
             
