@@ -52,9 +52,37 @@ function generateGalleryHTML() {
         </div>
     `;
     
-    // Write to gallery-items.html
-    fs.writeFileSync(path.join(__dirname, 'gallery-items.html'), galleryHTML);
+    // Create dist directory if it doesn't exist
+    const distDir = path.join(__dirname, 'dist');
+    if (!fs.existsSync(distDir)) {
+        fs.mkdirSync(distDir, { recursive: true });
+    }
+    
+    // Copy all files to dist directory
+    const files = fs.readdirSync(__dirname);
+    files.forEach(file => {
+        if (file !== 'dist' && !file.startsWith('.')) {
+            const srcPath = path.join(__dirname, file);
+            const destPath = path.join(distDir, file);
+            
+            if (fs.lstatSync(srcPath).isDirectory()) {
+                fs.mkdirSync(destPath, { recursive: true });
+                const subFiles = fs.readdirSync(srcPath);
+                subFiles.forEach(subFile => {
+                    const subSrcPath = path.join(srcPath, subFile);
+                    const subDestPath = path.join(destPath, subFile);
+                    fs.copyFileSync(subSrcPath, subDestPath);
+                });
+            } else {
+                fs.copyFileSync(srcPath, destPath);
+            }
+        }
+    });
+    
+    // Write gallery-items.html to dist directory
+    fs.writeFileSync(path.join(distDir, 'gallery-items.html'), galleryHTML);
     console.log('Gallery HTML generated successfully!');
+    console.log('Files copied to dist directory');
 }
 
 // Generate gallery once for deployment
