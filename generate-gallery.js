@@ -59,8 +59,32 @@ function generateGalleryHTML() {
     if (!fs.existsSync(distDir)) {
         fs.mkdirSync(distDir, { recursive: true });
     }
-    
-    // Copy all files to dist directory, excluding image directory
+
+    // Copy image directory to dist
+    const imageDir = path.join(__dirname, 'image');
+    const imageDest = path.join(distDir, 'image');
+    if (fs.existsSync(imageDir)) {
+        fs.mkdirSync(imageDest, { recursive: true });
+        const subFiles = fs.readdirSync(imageDir);
+        subFiles.forEach(subFile => {
+            const subSrcPath = path.join(imageDir, subFile);
+            const subDestPath = path.join(imageDest, subFile);
+            
+            if (fs.lstatSync(subSrcPath).isDirectory()) {
+                fs.mkdirSync(subDestPath, { recursive: true });
+                const subSubFiles = fs.readdirSync(subSrcPath);
+                subSubFiles.forEach(subSubFile => {
+                    const subSubSrcPath = path.join(subSrcPath, subSubFile);
+                    const subSubDestPath = path.join(subDestPath, subSubFile);
+                    fs.copyFileSync(subSubSrcPath, subSubDestPath);
+                });
+            } else {
+                fs.copyFileSync(subSrcPath, subDestPath);
+            }
+        });
+    }
+
+    // Copy other files to dist directory
     const files = fs.readdirSync(__dirname);
     files.forEach(file => {
         if (file !== 'dist' && !file.startsWith('.') && file !== 'image') {
