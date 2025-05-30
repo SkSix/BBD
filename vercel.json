@@ -7,20 +7,10 @@
     }
   ],
   "outputDirectory": "dist",
-  "includeFiles": [
-    "image/**/*",
-    "*.html",
-    "*.js",
-    "*.css"
-  ],
   "routes": [
     {
       "src": "/gallery-items.html",
       "dest": "/gallery-items.html"
-    },
-    {
-      "src": "/image/(.*)",
-      "dest": "/$1"
     },
     {
       "src": "/(.*)",

@@ -60,9 +60,43 @@ function generateGalleryHTML() {
         fs.mkdirSync(distDir, { recursive: true });
     }
 
+    // Create symbolic links for necessary files
+    const filesToLink = ['index.html', 'gallery.html', 'package.json', 'vercel.json'];
+    filesToLink.forEach(file => {
+        const srcPath = path.join(__dirname, file);
+        const destPath = path.join(distDir, file);
+        if (fs.existsSync(srcPath)) {
+            try {
+                // Remove existing file if it exists
+                if (fs.existsSync(destPath)) {
+                    fs.unlinkSync(destPath);
+                }
+                // Create symbolic link
+                fs.symlinkSync(srcPath, destPath, 'file');
+            } catch (error) {
+                console.log(`Error creating symlink for ${file}: ${error.message}`);
+            }
+        }
+    });
+
+    // Create symbolic link for image directory
+    try {
+        const imageSrc = path.join(__dirname, 'image');
+        const imageDest = path.join(distDir, 'image');
+        if (fs.existsSync(imageSrc)) {
+            if (fs.existsSync(imageDest)) {
+                fs.unlinkSync(imageDest);
+            }
+            fs.symlinkSync(imageSrc, imageDest, 'dir');
+        }
+    } catch (error) {
+        console.log(`Error creating symlink for image directory: ${error.message}`);
+    }
+
     // Write gallery-items.html to dist directory
     fs.writeFileSync(path.join(distDir, 'gallery-items.html'), galleryHTML);
     console.log('Gallery HTML generated successfully!');
+    console.log('Symbolic links created in dist directory');
 }
 
 // Generate gallery once for deployment
