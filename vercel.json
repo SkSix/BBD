@@ -20,5 +20,11 @@
       "src": "/(.*)",
       "dest": "/$1"
     }
+  ],
+  "staticDirectories": [
+    {
+      "directory": "image",
+      "path": "/image"
+    }
   ]
 }
