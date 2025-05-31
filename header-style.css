@@ -820,6 +820,7 @@ header {
     font-weight: bold;
     color: #b48a78;
     letter-spacing: 2px;
+    bottom: 20px;
 }
 
 nav {
@@ -828,12 +829,7 @@ nav {
     flex: 1;
 }
 
-.logo {
-    font-size: 2rem;
-    font-weight: bold;
-    color: #b48a78;
-    letter-spacing: 2px;
-}
+
 
 nav .menu {
     position: absolute;
