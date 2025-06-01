@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - Bibaho Diaries</title>
+    <link rel="stylesheet" href="header-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header Section -->
+    <div id="header-placeholder"></div>
+    <script>
+      fetch("header.html?nocache=" + Date.now())
+        .then(response => response.text())
+        .then(data => {
+          document.getElementById("header-placeholder").innerHTML = data;
+        });
+    </script>
+
+    <!-- About Us Section -->
+    <section class="about-us-section">
+        <div class="about-us-container">
+            <h1>About Us</h1>
+            <p class="about-lead">Bibaho Diaries is passionate about capturing the magic, emotions, and stories of your special day. With years of expertise in wedding photography and videography, our team is dedicated to turning your moments into timeless memories.</p>
+            <div class="about-details">
+                <h2>Our Mission</h2>
+                <p>We believe every love story is unique. Our mission is to document your wedding with creativity, authenticity, and attention to detail—so you can relive those cherished moments forever.</p>
+                <h2>Why Choose Us?</h2>
+                <ul>
+                    <li>Experienced, creative, and friendly team</li>
+                    <li>State-of-the-art equipment and editing</li>
+                    <li>Personalized approach for every couple</li>
+                    <li>Commitment to excellence and customer satisfaction</li>
+                </ul>
+                <h2>Meet the Team</h2>
+                <p>Our talented photographers, videographers, and editors work together to craft stunning visuals that reflect your personality and style. We are honored to be a part of your journey and strive to make your experience seamless and enjoyable.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer Section -->
+    <div id="footer-placeholder"></div>
+    <script>
+      fetch("footer.html?nocache=" + Date.now())
+        .then(response => response.text())
+        .then(data => {
+          document.getElementById("footer-placeholder").innerHTML = data;
+        });
+    </script>
+</body>
+</html>
