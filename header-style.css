@@ -886,7 +886,7 @@ nav .menu li a:hover {
 .about-us-container h1 {
     font-family: 'Lexend', Arial, sans-serif;
     font-size: 2.5rem;
-    font-weight: 700;
+    font-weight: 400;
     color: #b48a78;
     margin-bottom: 18px;
     text-align: center;
@@ -947,3 +947,145 @@ nav .menu li a:hover {
     }
 }
 /* --- End About Us Page Alignment --- */
+
+/* --- About Us Reference Design --- */
+.about-us-floral-bg {
+  position: relative;
+  min-height: 100vh;
+  background: #f8f4ee;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+.floral-bg-left, .floral-bg-right {
+  position: absolute;
+  top: 0;
+  width: 35vw;
+  height: 100%;
+  background-repeat: no-repeat;
+  background-size: contain;
+  opacity: 0.22;
+  z-index: 0;
+  pointer-events: none;
+}
+.floral-bg-left {
+  left: 0;
+  background-image: url('https://www.transparenttextures.com/patterns/flowers.png'); /* Replace with your floral SVG/PNG */
+  background-position: left top;
+}
+.floral-bg-right {
+  right: 0;
+  background-image: url('https://www.transparenttextures.com/patterns/flowers.png'); /* Replace with your floral SVG/PNG */
+  background-position: right top;
+  transform: scaleX(-1);
+}
+.about-us-centered {
+  position: relative;
+  z-index: 1;
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 40px 20px 60px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.about-us-title {
+  font-family: 'Lexend', Arial, sans-serif;
+  font-size: 2.6rem;
+  font-weight: 700;
+  color: #4a4342;
+  text-align: center;
+  margin-bottom: 18px;
+}
+.about-us-intro {
+  font-family: 'Lexend', Arial, sans-serif;
+  font-size: 1.1rem;
+  color: #444;
+  text-align: center;
+  max-width: 700px;
+  margin: 0 auto 38px auto;
+  line-height: 1.6;
+}
+.about-expertise-row {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: center;
+  width: 100%;
+  gap: 40px;
+  margin-top: 18px;
+}
+.about-expertise-img {
+  flex: 0 0 320px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+.about-black-rectangle {
+  width: 320px;
+  height: 420px;
+  background: #111;
+  border-radius: 8px;
+  margin: 0 auto;
+}
+.about-expertise-list {
+  flex: 1;
+  min-width: 260px;
+  max-width: 520px;
+}
+.about-expertise-list h2 {
+  font-family: 'Lexend', Arial, sans-serif;
+  font-size: 1.35rem;
+  color: #b48a78;
+  margin-bottom: 14px;
+  text-align: left;
+}
+.about-expertise-list ol {
+  font-family: 'Lexend', Arial, sans-serif;
+  font-size: 1rem;
+  color: #222;
+  margin: 0;
+  padding-left: 18px;
+}
+.about-expertise-list li {
+  margin-bottom: 17px;
+  line-height: 1.6;
+  text-align: left;
+}
+@media (max-width: 1000px) {
+  .about-expertise-row {
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+  }
+  .about-expertise-img {
+    margin-bottom: 12px;
+  }
+  .about-black-rectangle {
+    width: 90vw;
+    max-width: 340px;
+    height: 38vw;
+    max-height: 340px;
+  }
+  .about-expertise-list {
+    max-width: 98vw;
+  }
+}
+@media (max-width: 600px) {
+  .about-us-centered {
+    padding: 18px 4vw 36px 4vw;
+  }
+  .about-us-title {
+    font-size: 2rem;
+  }
+  .about-black-rectangle {
+    width: 90vw;
+    max-width: 260px;
+    height: 44vw;
+    max-height: 200px;
+  }
+}
+/* --- End About Us Reference Design --- */
