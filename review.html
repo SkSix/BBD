@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Reviews - Bibaho Diaries</title>
+    <link rel="stylesheet" href="header-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+      /*8739618069816793388*/
+        body {
+            background: #fdf6ee; /* Consistent background */
+            font-family: 'Lexend', Arial, sans-serif;
+        }
+        .reviews-container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+        }
+        .reviews-container h1 {
+            font-family: 'Lexend', Arial, sans-serif;
+            font-size: 48px;
+            font-weight: 300;
+            color: #444;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .reviews-container h2 {
+            font-family: 'Lexend', Arial, sans-serif;
+            font-size: 26px;
+            font-weight: 500;
+            color: #444;
+            margin-bottom: 30px;
+        }
+        .review-placeholder {
+            text-align: center;
+            padding: 40px;
+            border: 2px dashed #ffd600;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        .review-placeholder p {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        .google-reviews-btn, .leave-review-btn {
+            display: inline-block;
+            padding: 12px 25px;
+            margin: 10px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        .google-reviews-btn {
+            background-color: #4285F4; /* Google Blue */
+            color: white;
+            box-shadow: 0 2px 5px rgba(66,133,244,0.3);
+        }
+        .google-reviews-btn:hover {
+            background-color: #357ae8;
+            transform: translateY(-2px);
+        }
+        .leave-review-btn {
+            background-color: #ffb300; /* Your highlight gold */
+            color: #333;
+            box-shadow: 0 2px 5px rgba(255,179,0,0.3);
+        }
+        .leave-review-btn:hover {
+            background-color: #e6a100;
+            transform: translateY(-2px);
+        }
+        /* This is the class for the paragraph you want to add/confirm */
+        .reviews-info {
+            text-align: center;
+            font-size: 0.95rem;
+            color: #555;
+            margin-top: 30px; /* Ensures some space above it if other elements are present */
+        }
+
+        /* Basic Review Card Style (Example for manual addition) */
+        .review-card {
+            background: #f9f9f9;
+            border-left: 5px solid #ffb300;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+        }
+        .review-card .stars {
+            color: #ffb300;
+            margin-bottom: 10px;
+        }
+        .review-card .reviewer-name {
+            font-weight: bold;
+            margin-top: 10px;
+            color: #4a4342;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="header-placeholder"></div>
+    <script>
+      fetch("header.html?nocache=" + Date.now())
+        .then(response => response.text())
+        .then(data => {
+          document.getElementById("header-placeholder").innerHTML = data;
+            // Update active state for current page
+            const currentPath = window.location.pathname.split('/').pop() || 'index.html';
+            document.querySelectorAll('nav a').forEach(link => {
+                if (link.getAttribute('href') === currentPath) {
+                link.classList.add('active');
+                }
+            });
+        });
+    </script>
+
+    <div class="reviews-container">
+        <h1>What Our Clients Say</h1>
+
+        <div class="review-placeholder">
+            <p>We are proud of the feedback we receive from our clients!</p>
+            <a href="https://www.google.com/search?kgmid=/g/11stxlrkzy&hl=en-IN&q=Bibaho+Diaries&shndl=30&shem=lcuae,lstuoc2&source=sh/x/loc/osrp/m5/1&kgs=8540c54d7bc07482#lrd=0x39f89f1117a533b7:0xacf8c26370273131,1,,,," target="_blank" class="google-reviews-btn"><i class="fab fa-google"></i> View All Reviews on Google</a>
+            <a href="https://www.google.com/search?kgmid=/g/11stxlrkzy&hl=en-IN&q=Bibaho+Diaries&shndl=30&shem=lcuae,lstuoc2&source=sh/x/loc/osrp/m5/1&kgs=8540c54d7bc07482&sei=svM-aIPWDeue4-EP-qHu8Ac#lrd=0x39f89f1117a533b7:0xacf8c26370273131,3,,,," target="_blank" class="leave-review-btn"><i class="fas fa-star"></i> Leave a Review</a>
+            
+            <!--<p class="reviews-info">
+                To display live Google Reviews here, you can use a Google My Business widget, a third-party review aggregation service, or integrate directly with the Google My Business API.
+            </p>-->
+            </div>
+
+        <h2>A Glimpse of What Our Clients Share</h2>
+        <div class="review-card">
+            <div class="stars">
+                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+            </div>
+            <p>"Very professional and creative. Friendly behavior. Must recommended for your big days."</p>
+            <p class="reviewer-name">- Kankana Bramha.</p>
+        </div>
+
+        <div class="review-card">
+            <div class="stars">
+                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+            </div>
+            <p>"Excellent skill and very creative with Sense of Photography. Very happy with his work."</p>
+            <p class="reviewer-name">- Tirthankar Chowdhury.</p>
+        </div>
+        </div>
+
+    <div id="footer-placeholder"></div>
+    <script>
+      fetch("footer.html?nocache=" + Date.now())
+        .then(response => response.text())
+        .then(data => {
+          document.getElementById("footer-placeholder").innerHTML = data;
+        });
+    </script>
+        <script src="js/script.js"></script>
+        <script src="js/header.js"></script>
+</body>
+</html>

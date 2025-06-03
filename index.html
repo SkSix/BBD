@@ -6,6 +6,70 @@
     <title>Bibaho Diaries - Wedding Photography</title>
     <link rel="stylesheet" href="header-style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .modal.show {
+            display: flex;
+            opacity: 1;
+        }
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+        }
+        .modal.show .modal-content {
+            transform: translateY(0);
+        }
+        .modal-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        .success .modal-icon {
+            color: #4CAF50;
+        }
+        .error .modal-icon {
+            color: #f44336;
+        }
+        .modal-message {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #333;
+            line-height: 1.5;
+        }
+        .modal-close {
+            background: #c9a063;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        .modal-close:hover {
+            background: #b38c4a;
+        }
+    </style>
 </head>
 <body>
     <!-- Header Section -->
@@ -28,21 +92,29 @@
     <span class="hero-text">and <span class="highlight highlight-gold">videography</span></span>
 </h1>
             <p class="tagline">turning real happiness into pictures with us</p>
-            <form class="hero-form">
+            <form id="heroContactForm" class="hero-form">
+                <!-- Message modal will be inserted here by JavaScript -->
                 <div class="form-row">
-                    <input type="text" placeholder="*First Name" required>
-                    <input type="text" placeholder="*Last Name" required>
+                    <input type="text" name="firstName" placeholder="*First Name" required>
+                    <input type="text" name="lastName" placeholder="*Last Name" required>
                 </div>
-                <input type="text" placeholder="*Contact Number" required>
-                <input type="email" placeholder="*Email Address" required>
-                <input type="date" placeholder="*Event Date" required>
-                <select required>
+                <input type="tel" name="contact" placeholder="*Contact Number" pattern="[0-9]{10,15}" maxlength="15" required>
+                <input type="email" name="email" placeholder="*Email Address" required>
+                <input type="date" name="date" placeholder="*Event Date" required>
+                <select name="service" required>
                     <option value="">*Services</option>
-                    <option value="photography">Photography</option>
-                    <option value="videography">Videography</option>
-                    <option value="both">Both</option>
+                    <option value="Photography">Photography</option>
+                    <option value="Videography">Videography</option>
+                    <option value="Both">Both</option>
                 </select>
-                <button type="submit" class="cta-btn">Book Now</button>
+                <input type="hidden" name="_subject" value="New Homepage Inquiry">
+                <input type="hidden" name="_template" value="table">
+                <input type="hidden" name="_captcha" value="false">
+                <input type="hidden" name="_next" value="#">
+                <button type="submit" class="cta-btn" id="heroSubmitBtn">
+                    <span class="button-text">Book Now</span>
+                    <span class="spinner" style="display: none;">Sending...</span>
+                </button>
             </form>
         </div>
         <div class="hero-right carousel">
@@ -94,6 +166,123 @@
                 carouselImg.addEventListener('mouseleave', function() {
                     startCarousel();
                 });
+            });
+
+            // Create modal element
+            const modalHTML = `
+                <div id="formModal" class="modal">
+                    <div class="modal-content">
+                        <div class="modal-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="modal-message">Thank you for your message! We will get back to you soon.</div>
+                        <button class="modal-close" onclick="closeModal()">Close</button>
+                    </div>
+                </div>`;
+            
+            // Insert modal at the end of body
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            
+            // Modal functions
+            function showModal(message, isError = false) {
+                const modal = document.getElementById('formModal');
+                const modalContent = modal.querySelector('.modal-content');
+                const modalIcon = modal.querySelector('.modal-icon i');
+                const modalMessage = modal.querySelector('.modal-message');
+                
+                // Update modal content
+                modalMessage.textContent = message;
+                
+                if (isError) {
+                    modalContent.classList.add('error');
+                    modalContent.classList.remove('success');
+                    modalIcon.className = 'fas fa-exclamation-circle';
+                } else {
+                    modalContent.classList.add('success');
+                    modalContent.classList.remove('error');
+                    modalIcon.className = 'fas fa-check-circle';
+                }
+                
+                // Show modal
+                modal.classList.add('show');
+                
+                // Close modal after 5 seconds
+                setTimeout(() => {
+                    if (modal.classList.contains('show')) {
+                        closeModal();
+                    }
+                }, 5000);
+            }
+            
+            function closeModal() {
+                const modal = document.getElementById('formModal');
+                modal.classList.remove('show');
+            }
+            
+            // Close modal when clicking outside content
+            document.addEventListener('click', function(e) {
+                const modal = document.getElementById('formModal');
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+            
+            // Close modal with Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeModal();
+                }
+            });
+
+            // Form submission handler for hero form
+            document.getElementById('heroContactForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const form = e.target;
+                const submitBtn = document.getElementById('heroSubmitBtn');
+                
+                try {
+                    // Show loading state
+                    submitBtn.disabled = true;
+                    submitBtn.querySelector('.button-text').style.display = 'none';
+                    submitBtn.querySelector('.spinner').style.display = 'inline';
+                    
+                    // Collect form data
+                    const formData = new FormData(form);
+                    const formDataObj = Object.fromEntries(formData.entries());
+                    
+                    // Add auto-response message
+                    formDataObj._autoresponse = `Thank you for your inquiry, ${formDataObj.firstName || 'there'}! We're excited to help with your ${formDataObj.service || 'event'}. We'll get back to you soon.`;
+                    
+                    // Send to Formsubmit.co
+                    const response = await fetch('https://formsubmit.co/ajax/bibahodiaries.india@gmail.com', {
+                        method: 'POST',
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(formDataObj)
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (response.ok) {
+                        // Show success modal
+                        showModal('Thank you for your message! We will get back to you soon.');
+                        // Reset form
+                        form.reset();
+                    } else {
+                        throw new Error(result.message || 'Failed to send message');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    showModal('There was an error sending your message. Please try again later or contact us directly at bibahodiaries.india@gmail.com', true);
+                } finally {
+                    // Reset button state
+                    submitBtn.disabled = false;
+                    submitBtn.querySelector('.button-text').style.display = 'inline';
+                    submitBtn.querySelector('.spinner').style.display = 'none';
+                }
             });
         </script>
     </section>
@@ -247,10 +436,69 @@
             <br>Book an appointment now and let us create timeless memories for you to cherish. 
             <br>Contact us to discuss your vision and receive a personalized quote today.
         </p>
-        <form class="cta-form">
-            <input type="text" class="cta-input" placeholder="Enter your phone number" />
-            <button type="submit" class="cta-button">Get a call</button>
+        <form id="phoneForm" class="cta-form">
+            <input type="tel" name="phone" class="cta-input" placeholder="Enter your phone number" pattern="[0-9]{10,15}" maxlength="15" required />
+            <button type="submit" class="cta-button" id="phoneSubmitBtn">
+                <span class="button-text">Get a call</span>
+                <span class="spinner" style="display: none;">Sending...</span>
+            </button>
         </form>
+        
+        <script>
+            // Form submission handler for phone form
+            document.getElementById('phoneForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const form = e.target;
+                const submitBtn = document.getElementById('phoneSubmitBtn');
+                const phoneNumber = form.phone.value;
+                
+                try {
+                    // Show loading state
+                    submitBtn.disabled = true;
+                    submitBtn.querySelector('.button-text').style.display = 'none';
+                    submitBtn.querySelector('.spinner').style.display = 'inline';
+                    
+                    // Prepare form data
+                    const formData = {
+                        phone: phoneNumber,
+                        _subject: 'New Callback Request',
+                        _template: 'table',
+                        _captcha: 'false',
+                        _autoresponse: `Thank you for requesting a callback! We'll call you shortly at ${phoneNumber}.`
+                    };
+                    
+                    // Send to Formsubmit.co
+                    const response = await fetch('https://formsubmit.co/ajax/bibahodiaries.india@gmail.com', {
+                        method: 'POST',
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(formData)
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (response.ok) {
+                        // Show success modal
+                        showModal('Thank you! We will call you shortly.');
+                        // Reset form
+                        form.reset();
+                    } else {
+                        throw new Error(result.message || 'Failed to send request');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    showModal('There was an error processing your request. Please try again later or call us directly at +91 79806 03504', true);
+                } finally {
+                    // Reset button state
+                    submitBtn.disabled = false;
+                    submitBtn.querySelector('.button-text').style.display = 'inline';
+                    submitBtn.querySelector('.spinner').style.display = 'none';
+                }
+            });
+        </script>
     </section>
 
     <!-- Footer Section -->
@@ -262,5 +510,7 @@
           document.getElementById("footer-placeholder").innerHTML = data;
         });
     </script>
+    <script src="js/script.js"></script>
+    <script src="js/header.js"></script>
 </body>
 </html>

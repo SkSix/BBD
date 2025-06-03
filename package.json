@@ -7,7 +7,5 @@
     "dev": "node generate-gallery.js",
     "build": "node generate-gallery.js",
     "start": "node generate-gallery.js"
-  },
-  "dependencies": {},
-  "devDependencies": {}
+  }
 }
