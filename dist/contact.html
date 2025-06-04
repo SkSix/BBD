@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact Us - Bibaho Diaries</title>
+  <link rel="stylesheet" href="header-style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    body {
+      background: #f8f4ee;
+      margin: 0;
+      font-family: 'Lexend', Arial, sans-serif;
+    }
+    .contact-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 20px 60px 20px;
+      display: flex;
+      flex-direction: row;
+      gap: 48px;
+      align-items: flex-start;
+      justify-content: center;
+    }
+    .contact-form-section {
+      flex: 1 1 340px;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+      padding: 32px 24px;
+      min-width: 260px;
+      max-width: 420px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .contact-form-section h1 {
+      font-size: 2.2rem;
+      color: #4a4342;
+      margin-bottom: 10px;
+      text-align: center;
+      font-weight: 400;
+    }
+    .contact-form label {
+      font-size: 1rem;
+      color: #444;
+      margin-bottom: 4px;
+      font-weight: 300;
+    }
+    .contact-form input,
+    .contact-form textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 1rem;
+      margin-bottom: 14px;
+      font-family: inherit;
+      background: #faf9f7;
+      resize: none;
+      transition: border 0.2s;
+    }
+    .contact-form input:focus,
+    .contact-form textarea:focus {
+      border: 1.5px solid #c9a063;
+      outline: none;
+    }
+    .contact-form button {
+      background: #c9a063;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 0;
+      font-size: 1.08rem;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.2s;
+      font-weight: 500;
+    }
+    .contact-form button:hover {
+      background: #a77a37;
+    }
+   /* .contact-map-center-wrapper {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      margin-top: 24px;
+      margin-bottom: 24px;
+    }*/
+    .contact-map-section {
+      min-width: 320px;
+      max-width: 1000px;
+      width: 98vw;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+      margin: 24px auto;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+      padding: 24px 14px 14px 14px;
+    }
+    /*.contact-map-section h2 {
+      font-size: 1.2rem;
+      color: #4a4342;
+      margin-bottom: 14px;
+      font-weight: 400;
+      text-align: center;
+    }*/
+    .responsive-map {
+      width: 100%;
+      min-height: 480px;
+      max-width: 980px;
+      aspect-ratio: 16/9;
+      border: none;
+      border-radius: 0;
+      box-shadow: 0 1px 8px rgba(0,0,0,0.05);
+    }
+    @media (max-width: 1000px) {
+      .contact-container {
+        flex-direction: column;
+        gap: 32px;
+        padding: 28px 3vw 36px 3vw;
+      }
+      .contact-form-section, .contact-map-section {
+        max-width: 98vw;
+      }
+      .responsive-map {
+        min-height: 320px;
+        max-width: 98vw;
+      }
+    }
+    @media (max-width: 600px) {
+      .contact-container {
+        padding: 10px 2vw 18px 2vw;
+      }
+      .contact-form-section, .contact-map-section {
+        padding: 14px 6px;
+      }
+      .contact-form-section h1 {
+        font-size: 1.3rem;
+      }
+      .contact-map-section h2 {
+        font-size: 1rem;
+      }
+      .responsive-map {
+        min-height: 160px;
+        max-width: 98vw;
+      }
+    }
+  .contact-form-section {
+  flex: 2 1 540px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+  padding: 32px 24px;
+  min-width: 320px;
+  max-width: 650px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.contact-form {
+  box-sizing: border-box;
+  padding: 0;
+}
+.contact-form-section *,
+.form-row,
+.form-group,
+.contact-form input,
+.contact-form textarea {
+  box-sizing: border-box;
+}
+.form-row {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 0;
+}
+.form-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+}
+.form-group-full {
+  flex: 1 1 100%;
+}
+.form-row {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 0;
+}
+.form-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+}
+.form-group-full {
+  flex: 1 1 100%;
+}
+.contact-form label {
+  font-size: 1rem;
+  color: #444;
+  margin-bottom: 4px;
+  font-weight: 300;
+}
+.contact-form input,
+.contact-form textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+  margin-bottom: 0;
+  font-family: inherit;
+  background: #faf9f7;
+  resize: none;
+  transition: border 0.2s;
+}
+.contact-form textarea {
+  min-height: 48px;
+  max-height: 120px;
+}
+.contact-form button {
+  background: #3d2454;
+  color: #fff;
+  border: none;
+  border-radius: 24px;
+  padding: 10px 36px;
+  font-size: 1.08rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-weight: 500;
+  margin: 18px auto 0 auto;
+  display: block;
+}
+.contact-form button:hover {
+  background: #a77a37;
+}
+.contact-details-section {
+  flex: 1 1 320px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+  padding: 32px 28px;
+  min-width: 260px;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+  justify-content: flex-start;
+  margin-top: 0;
+  height: fit-content;
+}
+.contact-details-section h2 {
+  font-size: 1.18rem;
+  color: #3d2454;
+  margin-bottom: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+.contact-details-desc {
+  font-size: 0.98rem;
+  color: #444;
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+.contact-details-list {
+  font-size: 0.96rem;
+  color: #333;
+  margin: 0 0 0 18px;
+  padding: 0;
+  line-height: 1.7;
+}
+.contact-details-list li {
+  margin-bottom: 4px;
+}
+@media (max-width: 1000px) {
+  .contact-container {
+    flex-direction: column;
+    gap: 32px;
+    padding: 28px 3vw 36px 3vw;
+  }
+  .contact-form-section, .contact-map-section, .contact-details-section {
+    max-width: 98vw;
+  }
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+  .contact-details-section {
+    margin-top: 0;
+    align-items: flex-start;
+    width: 100%;
+    max-width: 98vw;
+  }
+}
+@media (max-width: 600px) {
+  .contact-details-section {
+    padding: 14px 6px;
+    font-size: 0.96rem;
+  }
+}
+</style>
+</head>
+<body>
+  <!-- Header Section -->
+  <div id="header-placeholder"></div>
+  <script>
+    fetch("header.html?nocache=" + Date.now())
+      .then(response => response.text())
+      .then(data => {
+        document.getElementById("header-placeholder").innerHTML = data;
+      });
+  </script>
+
+  <!-- Contact Us Section -->
+  <div class="contact-container">
+  <section class="contact-form-section">
+    <h1>Looking to capture a memory with us?</h1>
+    <form class="contact-form" autocomplete="off">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="name">Name *</label>
+          <input type="text" id="name" name="name" required>
+        </div>
+        <div class="form-group">
+          <label for="email">Email *</label>
+          <input type="email" id="email" name="email" required>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="contact">Phone *</label>
+          <input type="tel" id="contact" name="contact" pattern="[0-9]{10,15}" maxlength="15" required>
+        </div>
+        <div class="form-group">
+          <label for="date">Event Date *</label>
+          <input type="date" id="date" name="date" required>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="event">Type of Shoot *</label>
+          <input type="text" id="event" name="event" required placeholder="e.g. Wedding, Engagement">
+        </div>
+        <div class="form-group">
+          <label for="location">Venu *</label>
+          <input type="text" id="location" name="location" required placeholder="City or Venue">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group form-group-full">
+          <label for="message">Message</label>
+          <textarea id="message" name="message" rows="2"></textarea>
+        </div>
+      </div>
+      <button type="submit">Submit</button>
+    </form>
+  </section>
+ <section class="contact-details-section">
+    <h2>WHY BOOK US?</h2>
+    <p class="contact-details-desc">
+      <em>Ready to turn your dream moments into tangible memories? Connect with us to discuss your vision, explore our wedding photography and videography services, and let's embark on the journey to immortalize your special day with artistry and passion.</em>
+    </p>
+    <ul class="contact-details-list">
+      <li>Kolkata West Bengal 700126</li>
+      <li>speed.rig@gmail.com</li>
+      <li>+91 98308 39339</li>
+    </ul>
+  </section>
+  
+  </div>
+  <!-- <div class="contact-map-center-wrapper">
+    <div class="contact-map-section">
+      <h2>Find Us Here</h2> 
+      <iframe class="responsive-map" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3683.10171329454!2d88.3638952149604!3d22.5726469851687!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a0277a5b5b5b5b5%3A0x5b5b5b5b5b5b5b5b!2sKolkata%2C%20West%20Bengal!5e0!3m2!1sen!2sin!4v1685555555555!5m2!1sen!2sin" 
+      allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </div>
+  </div> -->
+
+  <div class="contact-map-section">
+    <!-- <h2>Find Us Here</h2> -->
+    <iframe class="responsive-map" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3683.10171329454!2d88.3638952149604!3d22.5726469851687!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a0277a5b5b5b5b5%3A0x5b5b5b5b5b5b5b5b!2sKolkata%2C%20West%20Bengal!5e0!3m2!1sen!2sin!4v1685555555555!5m2!1sen!2sin" 
+    allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+  </div>
+
+  <!-- Footer Section -->
+  <div id="footer-placeholder"></div>
+  <script>
+    fetch("footer.html?nocache=" + Date.now())
+      .then(response => response.text())
+      .then(data => {
+        document.getElementById("footer-placeholder").innerHTML = data;
+      });
+  </script>
+</body>
+</html>

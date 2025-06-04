@@ -1,0 +1,13 @@
+{
+  "name": "bibaho-diaries-website",
+  "version": "1.0.0",
+  "description": "Wedding Photography Website",
+  "main": "generate-gallery.js",
+  "scripts": {
+    "dev": "node generate-gallery.js",
+    "build": "node generate-gallery.js",
+    "start": "node generate-gallery.js"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

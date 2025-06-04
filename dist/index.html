@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bibaho Diaries - Wedding Photography</title>
+    <link rel="stylesheet" href="header-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header Section -->
+    <div id="header-placeholder"></div>
+    <script>
+      fetch("header.html?nocache=" + Date.now())
+        .then(response => response.text())
+        .then(data => {
+          document.getElementById("header-placeholder").innerHTML = data;
+        });
+    </script>
+
+    <!-- Hero Section -->
+    <section class="hero-card">
+        <div class="hero-left">
+            <h1>
+    <span class="hero-text">A <span class="highlight highlight-gold">warm greeting</span></span><br>
+    <span class="hero-text">inviting visitors to<br>explore your world of</span><br>
+    <span class="highlight highlight-gold">wedding photography</span><br>
+    <span class="hero-text">and <span class="highlight highlight-gold">videography</span></span>
+</h1>
+            <p class="tagline">turning real happiness into pictures with us</p>
+            <form class="hero-form">
+                <div class="form-row">
+                    <input type="text" placeholder="*First Name" required>
+                    <input type="text" placeholder="*Last Name" required>
+                </div>
+                <input type="text" placeholder="*Contact Number" required>
+                <input type="email" placeholder="*Email Address" required>
+                <input type="date" placeholder="*Event Date" required>
+                <select required>
+                    <option value="">*Services</option>
+                    <option value="photography">Photography</option>
+                    <option value="videography">Videography</option>
+                    <option value="both">Both</option>
+                </select>
+                <button type="submit" class="cta-btn">Book Now</button>
+            </form>
+        </div>
+        <div class="hero-right carousel">
+            <img id="carousel-image" src="image/BBD_6284.jpg" alt="Wedding Carousel" />
+            <div class="carousel-dots">
+                <span class="dot active" onclick="showImage(0)"></span>
+                <span class="dot" onclick="showImage(1)"></span>
+                <span class="dot" onclick="showImage(2)"></span>
+            </div>
+        </div>
+        <script>
+            const images = [
+                'image/BBD_6284.jpg',
+                'image/BBD_8336.jpg',
+                'image/IMG_5825.jpg'
+            ];
+            let current = 0;
+            let carouselInterval = null;
+            function showImage(idx) {
+                current = idx;
+                document.getElementById('carousel-image').src = images[idx];
+                const dots = document.querySelectorAll('.carousel-dots .dot');
+                dots.forEach((dot, i) => dot.classList.toggle('active', i === idx));
+            }
+            function nextImage() {
+                current = (current + 1) % images.length;
+                showImage(current);
+            }
+            // Start automatic carousel
+            function startCarousel() {
+                if (carouselInterval) clearInterval(carouselInterval);
+                carouselInterval = setInterval(nextImage, 2000);
+            }
+            // Manual navigation resets timer
+            document.addEventListener('DOMContentLoaded', function() {
+                showImage(0);
+                startCarousel();
+                document.querySelectorAll('.carousel-dots .dot').forEach((dot, idx) => {
+                    dot.addEventListener('click', function() {
+                        showImage(idx);
+                        startCarousel();
+                    });
+                });
+                // Pause/resume on hover
+                const carouselImg = document.getElementById('carousel-image');
+                carouselImg.addEventListener('mouseenter', function() {
+                    if (carouselInterval) clearInterval(carouselInterval);
+                });
+                carouselImg.addEventListener('mouseleave', function() {
+                    startCarousel();
+                });
+            });
+        </script>
+    </section>
+
+    <!-- About Love Section -->
+    <section class="about-love-card">
+        <img src="image/floral-left.png" alt="Floral Left" class="floral floral-left" />
+        <div class="about-love-content">
+            <h2>How did we fall in <span class="highlight highlight-gold">Love</span> ?</h2>
+            <p>It started with a glance, captured in a single frame.
+                Moments turned into memories, one photo at a time.
+                We saw the beauty in each other’s everyday.
+                Smiles became stories, stories became us.
+                In between the shutter clicks, love quietly bloomed.
+                We didn’t pose for it — it just happened.
+                That’s how we fell in love — naturally, like light finding its perfect angle.
+                </p>
+        </div>
+        <img src="image/floral-right.png" alt="Floral Right" class="floral floral-right" />
+    </section>
+
+
+    <!-- Memories Section -->
+    <section class="memories-section">
+        <div class="memories-title-row">
+            <div class="memories-line"></div>
+            <div class="memories-title">
+                <span class="memories-heart">&#10084;</span>
+                Memories
+            </div>
+            <div class="memories-line"></div>
+        </div>
+        <div class="memories-cards">
+            <div class="memory-card" style="background-image: url('image/memories-prewedding.jpg');">
+                <span class="memory-label">PREWEDDING</span>
+            </div>
+            <div class="memory-card" style="background-image: url('image/memories-traditional.jpg');">
+                <span class="memory-label">TRADITIONAL</span>
+            </div>
+            <div class="memory-card" style="background-image: url('image/memories-modern.jpg');">
+                <span class="memory-label">MODERN</span>
+            </div>
+            <div class="memory-card" style="background-image: url('image/memories-destination.jpg');">
+                <span class="memory-label">DESTINATION</span>
+            </div>
+            <div class="memory-card" style="background-image: url('image/memories-events.jpg');">
+                <span class="memory-label">EVENTS</span>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Our Team & Office Section -->
+    <section class="our-team-wrapper">
+        <h2 class="our-team-title">Our team &amp; office</h2>
+        <div class="our-team-section">
+            <div class="our-team-image">
+                <img src="image/our-team.png" alt="Our Team & Office">
+            </div>
+            <div class="our-team-content">
+                <h3>Who are we?</h3>
+                <p>
+                    At Bibaho Diaries, we are more than just photographers—we are storytellers, capturing the magic and emotions of your special day. Our team is a passionate group of creative minds, dedicated to preserving your wedding moments in the most beautiful and timeless way. From candid laughter to heartfelt vows, we bring artistry and emotion together in every frame.
+                </p>
+                <a class="our-team-link" href="#">Read More…</a>
+            </div>
+        </div>
+        <div class="our-team-section">
+            <div class="our-team-content">
+                <p>
+                    Based in our cozy yet dynamic office, we collaborate, edit, and curate the perfect wedding stories for you. It's a space where ideas flow, memories are crafted, and dreams are turned into cherished visuals. Let us be a part of your journey and create memories that last a lifetime. Hope this fits your vision! Let me know if you'd like any tweaks.
+                </p>
+            </div>
+            <div class="our-team-image">
+                <img src="image/our-equipment.png" alt="Our Team & Office">
+            </div>
+        </div>
+    </section>
+
+    <!-- Counter Section -->
+    <section class="counter-section">
+        <div class="counter-row">
+            <div class="counter-item">
+                <div class="counter-number">15+</div>
+                <div class="counter-label">Year's of Experience</div>
+            </div>
+            <div class="counter-item">
+                <div class="counter-number">600+</div>
+                <div class="counter-label">Events</div>
+            </div>
+            <div class="counter-item">
+                <div class="counter-number">25+</div>
+                <div class="counter-label">Cities</div>
+            </div>
+            <div class="counter-item">
+                <div class="counter-number">50+</div>
+                <div class="counter-label">Teams</div>
+            </div>
+        </div>
+    </section>
+    <script>
+        // Animate counters only when .counter-section is in view
+        document.addEventListener('DOMContentLoaded', function() {
+          let animated = false;
+          function animateCounter(el, target, duration = 5000) {
+            let start = 0;
+            let end = parseInt(target.replace(/\D/g, ''));
+            let plus = target.includes('+') ? '+' : '';
+            let current = start;
+            let increment = Math.ceil(end / (duration / 16));
+            function update() {
+              current += increment;
+              if (current >= end) {
+                el.textContent = end + plus;
+              } else {
+                el.textContent = current + plus;
+                requestAnimationFrame(update);
+              }
+            }
+            update();
+          }
+          function triggerCounters() {
+            if (animated) return;
+            animated = true;
+            document.querySelectorAll('.counter-number').forEach(function(el) {
+              animateCounter(el, el.textContent);
+            });
+          }
+          // Intersection Observer for counter-section
+          let counterSection = document.querySelector('.counter-section');
+          if ('IntersectionObserver' in window && counterSection) {
+            let observer = new IntersectionObserver(function(entries) {
+              if (entries[0].isIntersecting) {
+                triggerCounters();
+                observer.disconnect();
+              }
+            }, { threshold: 0.4 });
+            observer.observe(counterSection);
+          } else {
+            // Fallback: animate on load
+            triggerCounters();
+          }
+        });
+    </script>
+
+    <!-- Get a Call Section -->
+    <section class="cta-section">
+        <h2 class="cta-title">Let us hear your story</h2>
+        <p class="cta-desc">
+            Capture your special day with our professional wedding photography services. 
+            <br>Book an appointment now and let us create timeless memories for you to cherish. 
+            <br>Contact us to discuss your vision and receive a personalized quote today.
+        </p>
+        <form class="cta-form">
+            <input type="text" class="cta-input" placeholder="Enter your phone number" />
+            <button type="submit" class="cta-button">Get a call</button>
+        </form>
+    </section>
+
+    <!-- Footer Section -->
+    <div id="footer-placeholder"></div>
+    <script>
+      fetch("footer.html?nocache=" + Date.now())
+        .then(response => response.text())
+        .then(data => {
+          document.getElementById("footer-placeholder").innerHTML = data;
+        });
+    </script>
+</body>
+</html>

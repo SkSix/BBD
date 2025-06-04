@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - Bibaho Diaries</title>
+    <link rel="stylesheet" href="header-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+    /* --- About Us Reference Design --- */
+    .about-us-floral-bg {
+      position: relative;
+      min-height: 100vh;
+      background: #f8f4ee;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+    }
+    .floral-bg-left, .floral-bg-right {
+      position: absolute;
+      top: 0;
+      width: 35vw;
+      height: 100%;
+      background-repeat: no-repeat;
+      background-size: contain;
+      opacity: 0.22;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .floral-bg-left {
+      left: 0;
+      background-image: url('https://www.transparenttextures.com/patterns/flowers.png'); /* Replace with your floral SVG/PNG */
+      background-position: left top;
+    }
+    .floral-bg-right {
+      right: 0;
+      background-image: url('https://www.transparenttextures.com/patterns/flowers.png'); /* Replace with your floral SVG/PNG */
+      background-position: right top;
+      transform: scaleX(-1);
+    }
+    .about-us-centered {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 20px 60px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .about-us-title {
+      font-family: 'Lexend', Arial, sans-serif;
+      font-size: 2.6rem;
+      font-weight: 400;
+      color: #4a4342;
+      text-align: center;
+      margin-bottom: 18px;
+    }
+    .about-us-intro {
+      font-family: 'Lexend', Arial, sans-serif;
+      font-size: 0.90rem;
+      font-weight: 100;
+      color: #444;
+      text-align: center;
+      max-width: 1000px;
+      margin: 0 auto 38px auto;
+      line-height: 1.6;
+    }
+    .about-expertise-row {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      justify-content: center;
+      width: 100%;
+      max-width: 1000px;
+      gap: 40px;
+      margin-top: 18px;
+    }
+    .about-expertise-img {
+      flex: 0 0 320px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+    }
+    .about-black-rectangle {
+      width: 445px;
+      height: 688px;
+      background: #111;
+      margin: 0 auto;
+    }
+    .about-expertise-list {
+      flex: 1;
+      min-width: 260px;
+      max-width: 520px;
+    }
+    .about-expertise-list h2 {
+      font-family: 'Lexend', Arial, sans-serif;
+      font-size: 1.35rem;
+      font-weight: 300;
+      color: #444;
+      margin-bottom: 14px;
+      margin-top: -10px;
+      text-align: center;
+    }
+    .about-expertise-list ol {
+      font-family: 'Lexend', Arial, sans-serif;
+      font-size: 0.95rem;
+      font-weight: 100;
+      color: #222;
+      margin: 0;
+      padding-left: 18px;
+    }
+    .about-expertise-list li {
+      margin-bottom: 17px;
+      line-height: 1.6;
+      text-align: left;
+    }
+    @media (max-width: 1000px) {
+      .about-us-centered {
+        padding: 24px 2vw 36px 2vw;
+      }
+      .about-expertise-row {
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        max-width: 98vw;
+        gap: 28px;
+      }
+      .about-expertise-img {
+        margin-bottom: 12px;
+      }
+      .about-black-rectangle {
+        width: 90vw;
+        max-width: 340px;
+        height: 38vw;
+        max-height: 340px;
+      }
+      .about-expertise-list {
+        max-width: 98vw;
+      }
+    }
+    @media (max-width: 800px) {
+      .about-us-centered {
+        padding: 14px 2vw 24px 2vw;
+      }
+      .about-us-title {
+        font-size: 2rem;
+      }
+      .about-us-intro {
+        font-size: 0.95rem;
+        max-width: 92vw;
+      }
+      .about-expertise-row {
+        gap: 18px;
+      }
+      .about-black-rectangle {
+        width: 90vw;
+        max-width: 220px;
+        height: 44vw;
+        max-height: 180px;
+      }
+      .about-expertise-list {
+        max-width: 98vw;
+        font-size: 0.97rem;
+      }
+      .floral-bg-left, .floral-bg-right {
+        width: 60vw;
+        opacity: 0.13;
+      }
+    }
+    @media (max-width: 500px) {
+      .about-us-centered {
+        padding: 8px 2vw 18px 2vw;
+      }
+      .about-us-title {
+        font-size: 1.4rem;
+      }
+      .about-black-rectangle {
+        width: 92vw;
+        max-width: 140px;
+        height: 38vw;
+        max-height: 90px;
+      }
+      .about-expertise-list {
+        font-size: 0.92rem;
+      }
+      .floral-bg-left, .floral-bg-right {
+        width: 90vw;
+        opacity: 0.08;
+      }
+    }
+    /* --- End About Us Reference Design --- */
+    </style>
+</head>
+<body>
+    <!-- Header Section -->
+    <div id="header-placeholder"></div>
+    <script>
+      fetch("header.html?nocache=" + Date.now())
+        .then(response => response.text())
+        .then(data => {
+          document.getElementById("header-placeholder").innerHTML = data;
+        });
+    </script>
+
+    <!-- About Us Section -->
+    <section class="about-us-floral-bg">
+      <div class="floral-bg-left"></div>
+      <div class="floral-bg-right"></div>
+      <div class="about-us-centered">
+        <h1 class="about-us-title">About Us</h1>
+        <p class="about-us-intro">
+          Welcome to Bibaho Diaries, where we turn the pages of love stories into timeless chapters of visual delight. As storytellers of romance, we are not just photographers and videographers we are artists, capturing the essence of your journey from 'yes' to forever. With a keen eye for detail and a passion for portraying authenticity, our team at Bibaho Diaries is dedicated to transforming your wedding moments into a cherished album, filled with emotions, laughter, and the unique magic that defines your love. Let us be the authors of your wedding tale, creating a visual masterpiece that unfolds the beauty of your union in every frame.
+        </p>
+        <div class="about-expertise-row">
+          <div class="about-expertise-img">
+            <!-- Placeholder for image or video -->
+            <div class="about-black-rectangle"></div>
+          </div>
+          <div class="about-expertise-list">
+            <h2>What is our expertise?</h2>
+            <ol>
+              <li><b>Artistic Storytelling:</b> We specialize in weaving artistic narratives through our photography and videography, capturing the unique story of each wedding with creativity and flair.</li>
+              <li><b>Cinematic Excellence:</b> Our team is dedicated to creating cinematic experiences, employing advanced techniques and state-of-the-art equipment to produce high-quality wedding films that transport you back to the magic of your special day.</li>
+              <li><b>Candid Moments:</b> We excel in capturing genuine, spontaneous moments that reflect the emotions of your wedding day. Our skilled photographers have a keen eye for those details and emotions, ensuring every candid moment is preserved forever.</li>
+              <li><b>Professionalism:</b> With a commitment to professionalism, we ensure a seamless and stress-free experience for our clients. From the initial consultation to the final delivery, we prioritize clear communication, reliability, and a client-centric approach.</li>
+              <li><b>Artistic Sensibility:</b> Our expertise lies in curating visually stunning images and films, paying attention to composition, lighting, and aesthetics. We bring an artistic touch to every project, delivering visuals that are both captivating and timeless.</li>
+              <li><b>Customization:</b> Recognizing that each love story is unique, we offer personalized services, tailoring our photography and videography to your individual preferences and vision, so that your wedding day reflects your personality and vision.</li>
+              <li><b>Technical Prowess:</b> Our team is equipped with the latest technology and follows industry best practices, ensuring that you not only meet but exceed the technical standards of modern wedding photography and videography.</li>
+              <li><b>Passion for Perfection:</b> We are driven by a passion for perfection, striving to deliver an end result that exceeds expectations. Your satisfaction is our priority, and we go the extra mile to deliver results that surpass the ordinary.</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer Section -->
+    <div id="footer-placeholder"></div>
+    <script>
+      fetch("footer.html?nocache=" + Date.now())
+        .then(response => response.text())
+        .then(data => {
+          document.getElementById("footer-placeholder").innerHTML = data;
+        });
+    </script>
+</body>
+</html>
