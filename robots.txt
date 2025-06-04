@@ -1,0 +1,11 @@
+# robots.txt for Bibaho Diaries
+User-agent: *
+Allow: /
+
+# Disallow admin and private directories
+Disallow: /admin/
+Disallow: /private/
+Disallow: /includes/
+
+# Sitemap location (uncomment and update with your sitemap URL when available)
+# Sitemap: https://www.yourdomain.com/sitemap.xml
