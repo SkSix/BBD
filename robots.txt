@@ -8,4 +8,4 @@ Disallow: /private/
 Disallow: /includes/
 
 # Sitemap location (uncomment and update with your sitemap URL when available)
-# Sitemap: https://www.yourdomain.com/sitemap.xml
+Sitemap: https://www.bibahodiaries.in/sitemap.xml
