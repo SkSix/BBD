@@ -281,17 +281,70 @@
         <button class="filter-btn active" onclick="filterGallery('all')">All</button>
         <button class="filter-btn" onclick="filterGallery('wedding')">Wedding</button>
         <button class="filter-btn" onclick="filterGallery('engagement')">Engagement</button>
-        <button class="filter-btn" onclick="filterGallery('Pre-Wedding')">Pre Wedding</button>
+        <button class="filter-btn" onclick="filterGallery('pre-wedding')">Pre Wedding</button>
         <button class="filter-btn" onclick="filterGallery('family')">Family</button>
     </div>
         <!-- Gallery items will be dynamically loaded from gallery-items.html -->
         <div id="gallery-placeholder"></div>
+        <div class="load-more-container" style="text-align: center; margin: 20px 0; display: none;">
+            <button id="loadMoreBtn" class="load-more-btn" style="padding: 10px 20px; font-size: 16px; cursor: pointer; background: #ffd700; border: none; border-radius: 5px; color: #333; font-weight: bold;">
+                Load More
+            </button>
+        </div>
         <script>
+            // Global variables for pagination
+            const itemsPerPage = 20;
+            let currentFilter = 'all';
+            let allItems = [];
+            
+            // Function to initialize the gallery after items are loaded
+            function initializeGallery() {
+                console.log('Initializing gallery...');
+                allItems = Array.from(document.querySelectorAll('.gallery-item'));
+                console.log('Total items found:', allItems.length);
+                
+                if (allItems.length === 0) {
+                    console.error('No gallery items found!');
+                    return;
+                }
+                
+                // Set initial display state for all items
+                allItems.forEach((item, index) => {
+                    item.style.display = index < itemsPerPage ? 'block' : 'none';
+                });
+                
+                // Add click event to load more button
+                const loadMoreBtn = document.getElementById('loadMoreBtn');
+                if (loadMoreBtn) {
+                    loadMoreBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        loadMoreItems();
+                    });
+                }
+                
+                // Show the load more container and update button state
+                const loadMoreContainer = document.querySelector('.load-more-container');
+                if (loadMoreContainer) {
+                    loadMoreContainer.style.display = 'block';
+                    updateLoadMoreButton();
+                }
+                
+                // Initialize the filter
+                filterGallery('all');
+            }
+            
             // Load gallery items dynamically
-            fetch("gallery-items.html")
+            fetch("gallery-items.html?t=" + new Date().getTime())
                 .then(response => response.text())
                 .then(data => {
-                    document.getElementById("gallery-placeholder").innerHTML = data;
+                    const placeholder = document.getElementById("gallery-placeholder");
+                    placeholder.innerHTML = data;
+                    
+                    // Initialize the gallery after items are loaded
+                    initializeGallery();
+                })
+                .catch(error => {
+                    console.error('Error loading gallery items:', error);
                 });
         </script>
     </div>
@@ -304,30 +357,175 @@
     </div>
 
     <script>
+        // Global variables for pagination - moved to the top of the file
+        // and removed duplicate declarations
+        
+        // Initialize the gallery when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM Content Loaded');
+            // Gallery initialization is now handled by the fetch callback
+        });
+
+        // Load more items function
+        function loadMoreItems() {
+            console.log('loadMoreItems called');
+            
+            if (!allItems || allItems.length === 0) {
+                console.error('No items to load!');
+                return;
+            }
+            
+            // Get all items that match the current filter and are hidden
+            const hiddenItems = allItems.filter(item => {
+                if (currentFilter === 'all') {
+                    return item.style.display === 'none';
+                } else {
+                    return item.classList.contains(`category-${currentFilter}`) && 
+                           item.style.display === 'none';
+                }
+            });
+            
+            console.log('Hidden items matching filter:', hiddenItems.length);
+            
+            if (hiddenItems.length === 0) {
+                console.log('No more items to load');
+                return;
+            }
+            
+            // Show the next batch of items
+            const nextItems = hiddenItems.slice(0, itemsPerPage);
+            console.log('Showing next', nextItems.length, 'items');
+            
+            nextItems.forEach(item => {
+                item.style.display = 'block';
+            });
+            
+            updateLoadMoreButton();
+            
+            // Scroll to show the newly loaded items
+            if (nextItems.length > 0) {
+                nextItems[nextItems.length - 1].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+        
+        // Update load more button visibility
+        function updateLoadMoreButton() {
+            const loadMoreBtn = document.getElementById('loadMoreBtn');
+            if (!loadMoreBtn) {
+                console.error('Load more button not found!');
+                return;
+            }
+            
+            if (!allItems || allItems.length === 0) {
+                console.log('No items to display');
+                loadMoreBtn.style.display = 'none';
+                return;
+            }
+            
+            // Count visible items that match the current filter
+            const visibleCount = allItems.filter(item => {
+                const isVisible = item.style.display !== 'none';
+                if (currentFilter === 'all') {
+                    return isVisible;
+                } else {
+                    return isVisible && item.classList.contains(`category-${currentFilter}`);
+                }
+            }).length;
+            
+            // Count total items that match the current filter
+            const totalFiltered = currentFilter === 'all' 
+                ? allItems.length 
+                : allItems.filter(item => item.classList.contains(`category-${currentFilter}`)).length;
+            
+            console.log(`Visible: ${visibleCount}, Total: ${totalFiltered}`);
+            
+            // Show the button if there are more items to load
+            if (visibleCount >= totalFiltered) {
+                loadMoreBtn.style.display = 'none';
+                console.log('No more items to load');
+            } else {
+                loadMoreBtn.style.display = 'inline-block';
+                console.log(`Load more available: ${totalFiltered - visibleCount} items`);
+            }
+        }
+
         // Filter gallery items by category
         function filterGallery(category) {
+            console.log('Filtering by:', category);
+            
+            // Clean up the category name (convert to lowercase and replace spaces with hyphens)
+            currentFilter = category.toLowerCase().replace(/\s+/g, '-');
+            console.log('Current filter set to:', currentFilter);
+            
             // Update active filter button
             document.querySelectorAll('.filter-btn').forEach(button => {
                 button.classList.remove('active');
-                if (button.getAttribute('onclick').includes(category)) {
+                // Get the exact category from the button's onclick attribute
+                const buttonCategory = button.getAttribute('onclick').match(/'([^']+)'/)[1];
+                if (buttonCategory === currentFilter) {
                     button.classList.add('active');
                 }
             });
 
-            // Show/hide gallery items based on category
-            const items = document.querySelectorAll('.gallery-item');
-            items.forEach(item => {
-                if (category === 'all') {
-                    item.style.display = 'block';
-                } else {
-                    const categoryClass = `category-${category.toLowerCase().replace(/\s+/g, '-')}`;
-                    if (item.classList.contains(categoryClass)) {
-                        item.style.display = 'block';
-                    } else {
-                        item.style.display = 'none';
-                    }
-                }
+            if (!allItems || allItems.length === 0) {
+                console.error('No items to filter!');
+                return;
+            }
+            
+            // First, hide all items
+            allItems.forEach(item => {
+                item.style.display = 'none';
             });
+            
+            // Then show only the filtered items (first page)
+            let filteredItems = [];
+            
+            if (currentFilter === 'all') {
+                filteredItems = allItems;
+                console.log('Showing all items:', filteredItems.length);
+            } else {
+                filteredItems = allItems.filter(item => {
+                    // For pre-wedding, we need to check both the class and data attributes
+                    if (currentFilter === 'pre-wedding') {
+                        // Check if item has the pre-wedding class or is in a pre-wedding directory
+                        const hasPreWeddingClass = item.classList.contains('category-pre-wedding');
+                        const isFromPreWeddingDir = item.getAttribute('onclick')?.includes('pre_wedding') || 
+                                                 item.querySelector('img')?.src.includes('pre_wedding');
+                        
+                        if (hasPreWeddingClass || isFromPreWeddingDir) {
+                            console.log('Pre-wedding item found:', {
+                                classes: item.className,
+                                onclick: item.getAttribute('onclick'),
+                                imgSrc: item.querySelector('img')?.src
+                            });
+                            return true;
+                        }
+                        return false;
+                    } else {
+                        // For other categories, check the class
+                        return item.classList.contains(`category-${currentFilter}`);
+                    }
+                });
+            }
+            
+            console.log(`Found ${filteredItems.length} items for category: ${currentFilter}`);
+            
+            // Debug: Log first few items' classes
+            console.log('First item classes:', filteredItems[0]?.classList);
+            
+            // Show first page of filtered items
+            filteredItems.slice(0, itemsPerPage).forEach(item => {
+                if (item) item.style.display = 'block';
+            });
+            
+            // Update the load more button
+            updateLoadMoreButton();
+            
+            // Scroll to top of gallery
+            const galleryContainer = document.querySelector('.gallery-container');
+            if (galleryContainer) {
+                galleryContainer.scrollIntoView({ behavior: 'smooth' });
+            }
         }
 
         function openLightbox(imageSrc, caption) {
