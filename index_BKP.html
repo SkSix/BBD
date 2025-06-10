@@ -1,0 +1,1640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bibaho Diaries - Wedding Photography</title>
+    <link rel="stylesheet" href="header-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@5.4.2/dist/photoswipe.min.css">
+    <style>
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .modal.show {
+            display: flex;
+            opacity: 1;
+        }
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+        }
+        .modal.show .modal-content {
+            transform: translateY(0);
+        }
+        .modal-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        .success .modal-icon {
+            color: #4CAF50;
+        }
+        .error .modal-icon {
+            color: #f44336;
+        }
+        .modal-message {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #333;
+            line-height: 1.5;
+        }
+        .modal-close {
+            background: #c9a063;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        .modal-close:hover {
+            background: #b38c4a;
+        }
+    </style>
+    <style>
+        /* Lightbox custom styles */
+        .pswp {
+            --pswp-bg: rgba(0, 0, 0, 0.9);
+        }
+        .pswp__caption__center {
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto;
+            font-size: 16px;
+            color: #fff;
+            padding: 10px;
+        }
+        .pswp__button--zoom {
+            display: block !important;
+        }
+        /* Hide the default close button */
+        .pswp__button--close {
+            display: none !important;
+        }
+        /* Style our custom close button */
+        .pswp__button--custom-close {
+            position: absolute;
+            right: 5px;
+            top: 20px;
+            width: 40px;
+            height: 40px;
+            opacity: 1;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 50%;
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1000;
+        }
+        .pswp__button--custom-close svg {
+            width: 24px;
+            height: 24px;
+            fill: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Section -->
+    <div id="header-placeholder"></div>
+    <script>
+      fetch("header.html?nocache=" + Date.now())
+        .then(response => response.text())
+        .then(data => {
+          document.getElementById("header-placeholder").innerHTML = data;
+        });
+    </script>
+
+    <!-- Hero Section -->
+    <section class="hero-card">
+        <div class="hero-left">
+            <h1>
+    <span class="hero-text">A <span class="highlight highlight-gold">warm greeting</span></span><br>
+    <span class="hero-text">inviting visitors to<br>explore your world of</span><br>
+    <span class="highlight highlight-gold">wedding photography</span><br>
+    <span class="hero-text">and <span class="highlight highlight-gold">videography</span></span>
+</h1>
+            <p class="tagline">turning real happiness into pictures with us</p>
+            <form id="heroContactForm" class="hero-form">
+                <!-- Message modal will be inserted here by JavaScript -->
+                <div class="form-row">
+                    <input type="text" name="firstName" placeholder="*First Name" required>
+                    <input type="text" name="lastName" placeholder="*Last Name" required>
+                </div>
+                <input type="tel" name="contact" placeholder="*Contact Number" pattern="[0-9]{10,15}" maxlength="15" required>
+                <input type="email" name="email" placeholder="*Email Address" required>
+                <input type="date" name="date" placeholder="*Event Date" required>
+                <select name="service" required>
+                    <option value="">*Services</option>
+                    <option value="Photography">Photography</option>
+                    <option value="Videography">Videography</option>
+                    <option value="Both">Both</option>
+                </select>
+                <input type="hidden" name="_subject" value="New Homepage Inquiry">
+                <input type="hidden" name="_template" value="table">
+                <input type="hidden" name="_captcha" value="false">
+                <input type="hidden" name="_next" value="#">
+                <button type="submit" class="cta-btn" id="heroSubmitBtn">
+                    <span class="button-text">Book Now</span>
+                    <span class="spinner" style="display: none;">Sending...</span>
+                </button>
+            </form>
+        </div>
+        <div class="hero-right carousel">
+            <img id="carousel-image" src="image/BBD_6284.jpg" alt="Wedding Carousel" />
+            <div class="carousel-dots">
+                <span class="dot active" onclick="showImage(0)"></span>
+                <span class="dot" onclick="showImage(1)"></span>
+                <span class="dot" onclick="showImage(2)"></span>
+            </div>
+        </div>
+        <script>
+            const images = [
+                'image/BBD_6284.jpg',
+                'image/BBD_8336.jpg',
+                'image/IMG_5825.jpg'
+            ];
+            let current = 0;
+            let carouselInterval = null;
+            function showImage(idx) {
+                current = idx;
+                document.getElementById('carousel-image').src = images[idx];
+                const dots = document.querySelectorAll('.carousel-dots .dot');
+                dots.forEach((dot, i) => dot.classList.toggle('active', i === idx));
+            }
+            function nextImage() {
+                current = (current + 1) % images.length;
+                showImage(current);
+            }
+            // Start automatic carousel
+            function startCarousel() {
+                if (carouselInterval) clearInterval(carouselInterval);
+                carouselInterval = setInterval(nextImage, 2000);
+            }
+            // Manual navigation resets timer
+            document.addEventListener('DOMContentLoaded', function() {
+                showImage(0);
+                startCarousel();
+                document.querySelectorAll('.carousel-dots .dot').forEach((dot, idx) => {
+                    dot.addEventListener('click', function() {
+                        showImage(idx);
+                        startCarousel();
+                    });
+                });
+                // Pause/resume on hover
+                const carouselImg = document.getElementById('carousel-image');
+                carouselImg.addEventListener('mouseenter', function() {
+                    if (carouselInterval) clearInterval(carouselInterval);
+                });
+                carouselImg.addEventListener('mouseleave', function() {
+                    startCarousel();
+                });
+            });
+
+            // Create modal element
+            const modalHTML = `
+                <div id="formModal" class="modal">
+                    <div class="modal-content">
+                        <div class="modal-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="modal-message">Thank you for your message! We will get back to you soon.</div>
+                        <button class="modal-close" onclick="closeModal()">Close</button>
+                    </div>
+                </div>`;
+            
+            // Insert modal at the end of body
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            
+            // Modal functions
+            function showModal(message, isError = false) {
+                const modal = document.getElementById('formModal');
+                const modalContent = modal.querySelector('.modal-content');
+                const modalIcon = modal.querySelector('.modal-icon i');
+                const modalMessage = modal.querySelector('.modal-message');
+                
+                // Update modal content
+                modalMessage.textContent = message;
+                
+                if (isError) {
+                    modalContent.classList.add('error');
+                    modalContent.classList.remove('success');
+                    modalIcon.className = 'fas fa-exclamation-circle';
+                } else {
+                    modalContent.classList.add('success');
+                    modalContent.classList.remove('error');
+                    modalIcon.className = 'fas fa-check-circle';
+                }
+                
+                // Show modal
+                modal.classList.add('show');
+                
+                // Close modal after 5 seconds
+                setTimeout(() => {
+                    if (modal.classList.contains('show')) {
+                        closeModal();
+                    }
+                }, 5000);
+            }
+            
+            function closeModal() {
+                const modal = document.getElementById('formModal');
+                modal.classList.remove('show');
+            }
+            
+            // Close modal when clicking outside content
+            document.addEventListener('click', function(e) {
+                const modal = document.getElementById('formModal');
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+            
+            // Close modal with Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeModal();
+                }
+            });
+
+            // Form submission handler for hero form
+            document.getElementById('heroContactForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const form = e.target;
+                const submitBtn = document.getElementById('heroSubmitBtn');
+                
+                try {
+                    // Show loading state
+                    submitBtn.disabled = true;
+                    submitBtn.querySelector('.button-text').style.display = 'none';
+                    submitBtn.querySelector('.spinner').style.display = 'inline';
+                    
+                    // Collect form data
+                    const formData = new FormData(form);
+                    const formDataObj = Object.fromEntries(formData.entries());
+                    
+                    // Add auto-response message
+                    formDataObj._autoresponse = `Thank you for your inquiry, ${formDataObj.firstName || 'there'}! We're excited to help with your ${formDataObj.service || 'event'}. We'll get back to you soon.`;
+                    
+                    // Send to Formsubmit.co
+                    const response = await fetch('https://formsubmit.co/ajax/bibahodiaries.india@gmail.com', {
+                        method: 'POST',
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(formDataObj)
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (response.ok) {
+                        // Show success modal
+                        showModal('Thank you for your message! We will get back to you soon.');
+                        // Reset form
+                        form.reset();
+                    } else {
+                        throw new Error(result.message || 'Failed to send message');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    showModal('There was an error sending your message. Please try again later or contact us directly at bibahodiaries.india@gmail.com', true);
+                } finally {
+                    // Reset button state
+                    submitBtn.disabled = false;
+                    submitBtn.querySelector('.button-text').style.display = 'inline';
+                    submitBtn.querySelector('.spinner').style.display = 'none';
+                }
+            });
+        </script>
+    </section>
+
+    <!-- About Love Section -->
+    <section class="about-love-card">
+        <img src="image/floral-left.png" alt="Floral Left" class="floral floral-left" />
+        <div class="about-love-content">
+            <h2>How did we fall in <span class="highlight highlight-gold">Love</span> ?</h2>
+            <p>It started with a glance, captured in a single frame.
+                Moments turned into memories, one photo at a time.
+                We saw the beauty in each other’s everyday.
+                Smiles became stories, stories became us.
+                In between the shutter clicks, love quietly bloomed.
+                We didn’t pose for it — it just happened.
+                That’s how we fell in love — naturally, like light finding its perfect angle.
+                </p>
+        </div>
+        <img src="image/floral-right.png" alt="Floral Right" class="floral floral-right" />
+    </section>
+
+
+    <!-- Memories Section -->
+    <section class="memories-section">
+        <div class="memories-title-row">
+            <div class="memories-line"></div>
+            <div class="memories-title">
+                <span class="memories-heart">&#10084;</span>
+                Memories
+            </div>
+            <div class="memories-line"></div>
+        </div>
+        <div class="memories-cards" id="memories-cards">
+            <!-- Cards will be populated by JavaScript -->
+            <div class="memory-card loading" id="prewedding-card">
+                <div class="loading-spinner"></div>
+                <span class="memory-label">PRE-WEDDING</span>
+            </div>
+            <div class="memory-card loading" id="haldi-card">
+                <div class="loading-spinner"></div>
+                <span class="memory-label">HALDI</span>
+            </div>
+            <div class="memory-card loading" id="wedding-card">
+                <div class="loading-spinner"></div>
+                <span class="memory-label">WEDDING</span>
+            </div>
+            <div class="memory-card loading" id="portrait-card">
+                <div class="loading-spinner"></div>
+                <span class="memory-label">PORTRAIT</span>
+            </div>
+        </div>
+    </section>
+    
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Function to fetch the first image from each category
+        async function loadFirstImages() {
+            try {
+                // Fetch gallery items
+                const response = await fetch('gallery-items.html');
+                const html = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                
+                // Process each category
+                const categories = ['pre-wedding', 'haldi', 'wedding', 'portrait'];
+                
+                categories.forEach(category => {
+                    // Find the first image for this category
+                    const firstItem = doc.querySelector(`.category-${category}`);
+                    if (firstItem) {
+                        const img = firstItem.querySelector('img');
+                        if (img) {
+                            const card = document.getElementById(`${category.replace('-', '')}-card`);
+                            if (card) {
+                                // Update the card with the image and link
+                                card.innerHTML = `
+                                    <a href="gallery.html?filter=${category}" class="memory-card-link">
+                                        <div class="memory-card-image" style="background-image: url('${img.src}');"></div>
+                                        <span class="memory-label">${category.toUpperCase()}</span>
+                                    </a>
+                                `;
+                            }
+                        }
+                    }
+                });
+                
+            } catch (error) {
+                console.error('Error loading gallery images:', error);
+            }
+        }
+        
+        // Load the first images
+        loadFirstImages();
+    });
+    </script>
+    
+    <style>
+    /* Add styles for the loading state */
+    .memory-card {
+        position: relative;
+        min-height: 300px;
+        display: flex;
+        flex-direction: column;
+        padding: 0;
+        background: #f8f8f8;
+        border-radius: 8px;
+        overflow: hidden;
+        transition: transform 0.3s ease;
+    }
+    
+    .memory-card.loading {
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .memory-card-link {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        height: 100%;
+        text-decoration: none;
+        color: inherit;
+        position: relative;
+    }
+    
+    .memory-card-image {
+        width: 100%;
+        height: 100%;
+        background-size: cover;
+        background-position: center;
+        transition: transform 0.3s ease;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+    
+    .memory-card:hover .memory-card-image {
+        transform: scale(1.05);
+    }
+    
+    .loading-spinner {
+        width: 30px;
+        height: 30px;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: #fff;
+        animation: spin 1s ease-in-out infinite;
+        margin-bottom: 10px;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    .memory-label {
+        position: relative;
+        background: rgba(0, 0, 0, 0.5);
+        color: RGB(255, 214, 0);
+        padding: 10px 25px;
+        margin: 140px auto 0;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        text-align: center;
+        width: max-content;
+        z-index: 2;
+    }
+    </style>
+
+    <style>
+    /* Lazy loading styles */
+    .lazyload,
+    .lazyloading {
+        opacity: 0;
+        transition: opacity 300ms;
+    }
+    .lazyloaded {
+        opacity: 1;
+    }
+    .couple-image {
+        transition: opacity 0.3s ease-in-out;
+        background: #f5f5f5;
+    }
+    .couple-image.loaded {
+        opacity: 1;
+    }
+    .swiper-slide {
+        transition: transform 0.3s ease;
+    }
+    .swiper-slide:hover {
+        transform: translateY(-5px);
+    }
+
+    /* Pre-Wedding Section Styles */
+    .pre-wedding-section {
+        padding: 60px 0;
+        background-color: #f9f9f9;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .swiper-container {
+        width: 100%;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 10px 20px 50px;
+        position: relative;
+    }
+    
+    .swiper-slide {
+        background: #fff;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        height: auto;
+        margin: 10px 0;
+        opacity: 0.9;
+    }
+    
+    .swiper-slide-active {
+        opacity: 1;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    }
+    
+    /* Remove hover effect on touch devices */
+    @media (hover: hover) and (pointer: fine) {
+        .swiper-slide:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+    }
+    
+    .loading-slide {
+        min-height: 300px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    @media (max-width: 480px) {
+        .loading-slide {
+            min-height: 250px;
+        }
+    }
+
+    .couple-card {
+        position: relative;
+        border-radius: 12px;
+        overflow: hidden;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Navigation buttons - Hidden by default */
+    .swiper-button-next,
+    .swiper-button-prev {
+        display: none !important; /* Force hide by default */
+    }
+    
+    /* Show navigation buttons only on larger screens */
+    @media (min-width: 992px) {
+        .swiper-button-next,
+        .swiper-button-prev {
+            display: flex !important;
+            color: #c9a063;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0);
+            border-radius: 50%;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+        
+        .swiper-button-next:hover,
+        .swiper-button-prev:hover {
+            color: #b38c4a;
+            transform: scale(1.2);
+        }
+    }
+    
+    /* Pagination */
+    .swiper-pagination-bullet {
+        background: #c9a063;
+        opacity: 0.5;
+        width: 10px;
+        height: 10px;
+        margin: 0 5px;
+    }
+    
+    .swiper-pagination-bullet-active {
+        background: #c9a063;
+        opacity: 1;
+    }
+
+    .image-container {
+        position: relative;
+        width: 100%;
+        height: 280px;
+        overflow: hidden;
+        background: #f5f5f5;
+    }
+    
+    .couple-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease, opacity 0.3s ease;
+        aspect-ratio: 3/4;
+        opacity: 0;
+    }
+    
+    .couple-image.loaded {
+        opacity: 1;
+    }
+    
+    .loading-spinner {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 40px;
+        height: 40px;
+        border: 3px solid rgba(201, 160, 99, 0.3);
+        border-radius: 50%;
+        border-top-color: #c9a063;
+        animation: spin 1s ease-in-out infinite;
+    }
+    
+    @keyframes spin {
+        to { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+    
+    @media (max-width: 768px) {
+        .image-container,
+        .couple-image {
+            height: 220px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .image-container,
+        .couple-image {
+            height: 200px;
+        }
+    }
+
+    .swiper-slide:hover .couple-image {
+        transform: scale(1.05);
+    }
+
+    .couple-info {
+        padding: 15px 10px;
+        background: #fff;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        text-align: center;
+    }
+    
+    .couple-info h3 {
+        margin: 0 0 8px;
+        color: #333;
+        font-size: 1.1em;
+        font-weight: 600;
+        line-height: 1.3;
+        padding: 0 5px;
+    }
+    
+    @media (max-width: 480px) {
+        .couple-info h3 {
+            font-size: 1em;
+            margin-bottom: 5px;
+        }
+    }
+    
+    .couple-info p {
+        margin: 0;
+        color: #888;
+        font-size: 0.85em;
+        font-weight: 500;
+    }
+    
+    @media (max-width: 480px) {
+        .couple-info p {
+            font-size: 0.8em;
+        }
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .swiper-container {
+            padding: 20px 30px 50px;
+        }
+        
+        .couple-image {
+            height: 250px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .swiper-container {
+            padding: 20px 15px 40px;
+        }
+        
+        .couple-image {
+            height: 200px;
+        }
+    }
+
+    .couple-names {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin: 0 0 5px 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .couple-location {
+        font-size: 0.9rem;
+        opacity: 0.9;
+        margin: 0;
+    }
+
+    @media (max-width: 768px) {
+        .couples-grid {
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            padding: 0 20px;
+            gap: 20px;
+        }
+        
+        .couple-names {
+            font-size: 1.3rem;
+        }
+    }
+    </style>
+
+    <style>
+    /* Additional styles for the pre-wedding section */
+    .no-couples, .error {
+        text-align: center;
+        grid-column: 1 / -1;
+        padding: 40px;
+        color: #666;
+        font-size: 1.1rem;
+    }
+    
+    .error {
+        color: #d32f2f;
+    }
+    
+    .couple-link {
+        text-decoration: none;
+        color: inherit;
+        display: block;
+        height: 100%;
+    }
+    </style>
+
+    <!-- Pre-Wedding Section -->
+    <section class="pre-wedding-section">
+        <div class="memories-title-row">
+            <div class="memories-line"></div>
+            <div class="memories-title">
+                <span class="memories-heart">❤</span>
+                Pre-Wedding Stories
+            </div>
+            <div class="memories-line"></div>
+        </div>
+        <!-- Slider main container -->
+        <div class="swiper-container">
+            <!-- Additional required wrapper -->
+            <div class="swiper-wrapper" id="couples-grid">
+                <!-- Slides will be added here by JavaScript -->
+                <div class="swiper-slide loading-slide">
+                    <div class="loading-spinner"></div>
+                </div>
+            </div>
+            <!-- Navigation buttons -->
+            <div class="swiper-button-prev"></div>
+            <div class="swiper-button-next"></div>
+            <!-- Pagination -->
+            <div class="swiper-pagination"></div>
+        </div>
+    </section>
+    
+    <!-- Add Swiper CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css">
+    <!-- Add Swiper JS -->
+    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+
+    <!-- Our Team & Office Section -->
+    <section class="our-team-wrapper">
+        <h2 class="our-team-title">Our team &amp; office</h2>
+        <div class="our-team-section">
+            <div class="our-team-image">
+                <img src="image/our-team.png" alt="Our Team & Office">
+            </div>
+            <div class="our-team-content">
+                <h3>Who are we?</h3>
+                <p>
+                    At Bibaho Diaries, we are more than just photographers—we are storytellers, capturing the magic and emotions of your special day. Our team is a passionate group of creative minds, dedicated to preserving your wedding moments in the most beautiful and timeless way. From candid laughter to heartfelt vows, we bring artistry and emotion together in every frame.
+                </p>
+                <a class="our-team-link" href="#">Read More…</a>
+            </div>
+        </div>
+        <div class="our-team-section">
+            <div class="our-team-content">
+                <p>
+                    Based in our cozy yet dynamic office, we collaborate, edit, and curate the perfect wedding stories for you. It's a space where ideas flow, memories are crafted, and dreams are turned into cherished visuals. Let us be a part of your journey and create memories that last a lifetime. Hope this fits your vision! Let me know if you'd like any tweaks.
+                </p>
+            </div>
+            <div class="our-team-image">
+                <img src="image/our-equipment.png" alt="Our Team & Office">
+            </div>
+        </div>
+    </section>
+
+    <!-- Counter Section -->
+    <section class="counter-section">
+        <div class="counter-row">
+            <div class="counter-item">
+                <div class="counter-number">15+</div>
+                <div class="counter-label">Year's of Experience</div>
+            </div>
+            <div class="counter-item">
+                <div class="counter-number">600+</div>
+                <div class="counter-label">Events</div>
+            </div>
+            <div class="counter-item">
+                <div class="counter-number">25+</div>
+                <div class="counter-label">Cities</div>
+            </div>
+            <div class="counter-item">
+                <div class="counter-number">50+</div>
+                <div class="counter-label">Teams</div>
+            </div>
+        </div>
+    </section>
+    <script>
+        // Animate counters only when .counter-section is in view
+        document.addEventListener('DOMContentLoaded', function() {
+          let animated = false;
+          function animateCounter(el, target, duration = 5000) {
+            let start = 0;
+            let end = parseInt(target.replace(/\D/g, ''));
+            let plus = target.includes('+') ? '+' : '';
+            let current = start;
+            let increment = Math.ceil(end / (duration / 16));
+            function update() {
+              current += increment;
+              if (current >= end) {
+                el.textContent = end + plus;
+              } else {
+                el.textContent = current + plus;
+                requestAnimationFrame(update);
+              }
+            }
+            update();
+          }
+          function triggerCounters() {
+            if (animated) return;
+            animated = true;
+            document.querySelectorAll('.counter-number').forEach(function(el) {
+              animateCounter(el, el.textContent);
+            });
+          }
+          // Intersection Observer for counter-section
+          let counterSection = document.querySelector('.counter-section');
+          if ('IntersectionObserver' in window && counterSection) {
+            let observer = new IntersectionObserver(function(entries) {
+              if (entries[0].isIntersecting) {
+                triggerCounters();
+                observer.disconnect();
+              }
+            }, { threshold: 0.4 });
+            observer.observe(counterSection);
+          } else {
+            // Fallback: animate on load
+            triggerCounters();
+          }
+        });
+    </script>
+
+    <!-- Get a Call Section -->
+    <section class="cta-section">
+        <h2 class="cta-title">Let us hear your story</h2>
+        <p class="cta-desc">
+            Capture your special day with our professional wedding photography services. 
+            <br>Book an appointment now and let us create timeless memories for you to cherish. 
+            <br>Contact us to discuss your vision and receive a personalized quote today.
+        </p>
+        <form id="phoneForm" class="cta-form">
+            <input type="tel" name="phone" class="cta-input" placeholder="Enter your phone number" pattern="[0-9]{10,15}" maxlength="15" required />
+            <button type="submit" class="cta-button" id="phoneSubmitBtn">
+                <span class="button-text">Get a call</span>
+                <span class="spinner" style="display: none;">Sending...</span>
+            </button>
+        </form>
+        
+        <script>
+            // Form submission handler for phone form
+            document.getElementById('phoneForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const form = e.target;
+                const submitBtn = document.getElementById('phoneSubmitBtn');
+                const phoneNumber = form.phone.value;
+                
+                try {
+                    // Show loading state
+                    submitBtn.disabled = true;
+                    submitBtn.querySelector('.button-text').style.display = 'none';
+                    submitBtn.querySelector('.spinner').style.display = 'inline';
+                    
+                    // Prepare form data
+                    const formData = {
+                        phone: phoneNumber,
+                        _subject: 'New Callback Request',
+                        _template: 'table',
+                        _captcha: 'false',
+                        _autoresponse: `Thank you for requesting a callback! We'll call you shortly at ${phoneNumber}.`
+                    };
+                    
+                    // Send to Formsubmit.co
+                    const response = await fetch('https://formsubmit.co/ajax/bibahodiaries.india@gmail.com', {
+                        method: 'POST',
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(formData)
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (response.ok) {
+                        // Show success modal
+                        showModal('Thank you! We will call you shortly.');
+                        // Reset form
+                        form.reset();
+                    } else {
+                        throw new Error(result.message || 'Failed to send request');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    showModal('There was an error processing your request. Please try again later or call us directly at +91 79806 03504', true);
+                } finally {
+                    // Reset button state
+                    submitBtn.disabled = false;
+                    submitBtn.querySelector('.button-text').style.display = 'inline';
+                    submitBtn.querySelector('.spinner').style.display = 'none';
+                }
+            });
+        </script>
+    </section>
+
+    <!-- Footer Section -->
+    <div id="footer-placeholder"></div>
+    <script>
+      fetch("footer.html?nocache=" + Date.now())
+        .then(response => response.text())
+        .then(data => {
+          document.getElementById("footer-placeholder").innerHTML = data;
+        });
+    </script>
+    <script src="js/script.js"></script>
+    <script src="js/header.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/photoswipe@5.4.2/dist/umd/photoswipe.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/photoswipe@5.4.2/dist/umd/photoswipe-lightbox.umd.min.js"></script>
+    <script>
+    // Function to format couple names from folder name
+    function formatCoupleName(folderName) {
+        const names = folderName.split(/[xX]/).map(name => {
+            return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+        });
+        return names.length >= 2 ? `${names[0]} & ${names[1]}` : names[0] || 'Couple';
+    }
+
+    // Helper function to get image dimensions with better path handling
+    function getImageDimensions(url) {
+        return new Promise((resolve) => {
+            // Clean and normalize the URL
+            let cleanUrl = url;
+            try {
+                // Handle relative URLs
+                if (!url.startsWith('http') && !url.startsWith('//') && !url.startsWith('data:')) {
+                    // Ensure single leading slash for relative URLs
+                    cleanUrl = url.replace(/^\/+/, '/');
+                }
+                
+                // Check cache first with cleaned URL
+                const cacheKey = `img_${btoa(cleanUrl)}`;
+                if (imageDimensionCache.has(cacheKey)) {
+                    resolve(imageDimensionCache.get(cacheKey));
+                    return;
+                }
+                
+                const img = new Image();
+                img.crossOrigin = 'anonymous'; // Handle CORS if needed
+                
+                img.onload = function() {
+                    const dimensions = {
+                        width: this.naturalWidth || 1200,
+                        height: this.naturalHeight || 800,
+                        src: cleanUrl // Return the cleaned URL
+                    };
+                    // Cache the result
+                    imageDimensionCache.set(cacheKey, dimensions);
+                    resolve(dimensions);
+                };
+                
+                img.onerror = function() {
+                    console.warn('Failed to load image:', cleanUrl);
+                    // Fallback dimensions if image fails to load
+                    resolve({
+                        width: 1200,
+                        height: 800,
+                        src: cleanUrl // Return the cleaned URL even if it failed to load
+                    });
+                };
+                
+                // Set src after setting up event handlers
+                img.src = cleanUrl;
+                
+                // If the image is already in the browser's cache, trigger onload manually
+                if (img.complete) {
+                    img.onload();
+                }
+                
+            } catch (error) {
+                console.error('Error in getImageDimensions:', error);
+                resolve({
+                    width: 1200,
+                    height: 800,
+                    src: cleanUrl
+                });
+            }
+        });
+    }
+
+    // Cache for storing image dimensions to avoid repeated requests
+    const imageDimensionCache = new Map();
+    
+    // Function to update visible images with correct dimensions
+    function updateVisibleImages(updatedDimensions) {
+        if (!updatedDimensions || !updatedDimensions.length) return;
+        
+        // Find all images in the document
+        const images = document.querySelectorAll('img[data-src]');
+        
+        images.forEach(img => {
+            const src = img.getAttribute('data-src');
+            if (!src) return;
+            
+            // Clean the source for comparison
+            const cleanSrc = src.replace(/^\/+/, '');
+            
+            // Find matching dimension update
+            const update = updatedDimensions.find(dim => {
+                const dimSrc = typeof dim === 'string' ? dim : dim.src;
+                return dimSrc && dimSrc.includes(cleanSrc.split('/').pop());
+            });
+            
+            if (update) {
+                // Update the image source and dimensions
+                img.src = update.src || src;
+                if (update.width && update.height) {
+                    img.width = update.width;
+                    img.height = update.height;
+                }
+                img.removeAttribute('data-src');
+                
+                // Hide loading spinner if it exists
+                const spinner = img.parentElement.querySelector('.loading-spinner');
+                if (spinner) {
+                    spinner.style.display = 'none';
+                }
+            }
+        });
+    }
+
+    // Function to get all images from a folder with optimized loading
+    async function getCoupleImages(coupleId) {
+        try {
+            // Clean up the coupleId to remove any path segments and normalize
+            const cleanCoupleId = coupleId.replace(/^.*[\\\/]/, '').replace(/[\\\/]+/g, '');
+            // Ensure we have a clean base path without any duplicates
+            const basePath = `image/gallery/pre_wedding/${cleanCoupleId}`.replace(/([^:]\/)\/+/g, '$1');
+            const cacheKey = `couple_${cleanCoupleId}`;
+            
+            // Check if we have cached results
+            if (sessionStorage.getItem(cacheKey)) {
+                try {
+                    return JSON.parse(sessionStorage.getItem(cacheKey));
+                } catch (e) {
+                    console.warn('Failed to parse cached data, refetching...');
+                }
+            }
+            
+            // Construct the clean URL for fetching directory listing
+            const cleanUrl = new URL(basePath, window.location.origin).pathname + '/';
+            const response = await fetch(cleanUrl);
+            if (!response.ok) {
+                console.error(`Failed to fetch directory: ${cleanUrl} - ${response.status} ${response.statusText}`);
+                return [];
+            }
+            
+            const text = await response.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(text, 'text/html');
+            const links = Array.from(doc.querySelectorAll('a'));
+            
+            const imageExtensions = ['.jpg', '.jpeg', '.png', '.webp'];
+            const imageFiles = links
+                .map(link => link.getAttribute('href'))
+                .filter(href => {
+                    if (!href) return false;
+                    if (href === '../' || href === './' || href.endsWith('/')) return false;
+                    const ext = href.toLowerCase().substring(href.lastIndexOf('.'));
+                    return imageExtensions.includes(ext);
+                });
+                
+            if (imageFiles.length === 0) {
+                console.warn(`No images found in directory: ${basePath}/`);
+                return [];
+            }
+            
+            // Create initial response with placeholder dimensions
+            const initialResponse = imageFiles.map((image, index) => {
+                const cleanImage = image.replace(/\.\//, '').replace(/^\//, '');
+                // Ensure we don't have duplicate path segments
+                const imagePath = `${basePath}/${cleanImage}`.replace(/([^:]\/)\/+/g, '$1');
+                const imageUrl = new URL(imagePath, window.location.origin).pathname;
+                return {
+                    src: imageUrl,
+                    width: 1200,  // Placeholder dimensions
+                    height: 800,   // Will be updated later
+                    alt: `${cleanCoupleId.replace(/[xX]/, ' & ')} - Photo ${index + 1}`,
+                    loading: 'lazy'
+                };
+            });
+            
+            // Cache the initial response
+            sessionStorage.setItem(cacheKey, JSON.stringify(initialResponse));
+            
+            // Load actual dimensions in the background
+            loadActualDimensions(cleanCoupleId, basePath, imageFiles)
+                .then(updatedDimensions => {
+                    // Update the cache with actual dimensions
+                    sessionStorage.setItem(cacheKey, JSON.stringify(updatedDimensions));
+                    
+                    // Update any visible images that might be using placeholders
+                    updateVisibleImages(updatedDimensions);
+                })
+                .catch(console.error);
+            
+            return initialResponse;
+            
+        } catch (error) {
+            console.error('Error loading couple images:', error);
+            return [];
+        }
+    }
+    
+    // Function to load actual image dimensions in the background
+    async function loadActualDimensions(coupleId, basePath, imageFiles) {
+        const updatedDimensions = [];
+        
+        // Clean up the basePath to ensure no trailing slashes and normalize
+        const cleanBasePath = basePath.replace(/([^:]\/)\/+$/, '$1').replace(/([^:]\/)\/+/g, '$1');
+        
+        for (const [index, image] of imageFiles.entries()) {
+            try {
+                // Clean the image filename - remove any leading ./ or /
+                const cleanImage = image.replace(/^\.?\/+/, '');
+                
+                // Construct the full path and ensure no duplicate path segments
+                let fullPath = `${cleanBasePath}/${cleanImage}`;
+                
+                // Normalize the path to remove any remaining duplicate slashes
+                fullPath = fullPath.replace(/([^:]\/)\/+/g, '$1');
+                
+                // Create a proper URL object to handle path normalization
+                const imageUrl = new URL(fullPath, window.location.origin).pathname;
+                
+                // Skip if already in cache
+                const cacheKey = `img_${btoa(imageUrl)}`;
+                if (imageDimensionCache.has(cacheKey)) {
+                    updatedDimensions.push(imageDimensionCache.get(cacheKey));
+                    continue;
+                }
+                
+                // Get the actual dimensions
+                const result = await getImageDimensions(imageUrl);
+                
+                // Create the image data object with cleaned URL
+                const imageData = {
+                    src: imageUrl, // Use the normalized URL
+                    width: result.width,
+                    height: result.height,
+                    alt: `${coupleId.replace(/[xX]/, ' & ')} - Photo ${index + 1}`,
+                    loading: 'lazy'
+                };
+                
+                // Cache the result
+                imageDimensionCache.set(cacheKey, imageData);
+                updatedDimensions.push(imageData);
+                
+                // Add a small delay every 5 images to prevent UI blocking
+                if (index % 5 === 0) {
+                    await new Promise(resolve => setTimeout(resolve, 50));
+                }
+                
+            } catch (err) {
+                console.warn(`Error processing image ${image}:`, err);
+                
+                // Clean the image path for the fallback
+                const cleanImage = image.replace(/^\.?\/+/, '');
+                const fallbackPath = `${cleanBasePath}/${cleanImage}`.replace(/([^:]\/)\/+/g, '$1');
+                const fallbackUrl = new URL(fallbackPath, window.location.origin).pathname;
+                
+                // Fallback with placeholder data
+                updatedDimensions.push({
+                    src: fallbackUrl,
+                    width: 1200,
+                    height: 800,
+                    alt: `${coupleId.replace(/[xX]/, ' & ')} - Photo ${index + 1}`,
+                    loading: 'lazy'
+                });
+            }
+        }
+        
+        return updatedDimensions;
+    }
+    
+    // Function to load couple data in the background
+    async function loadCoupleData(coupleId, names, slide) {
+        try {
+            const images = await getCoupleImages(coupleId);
+            const img = slide.querySelector('.couple-image');
+            const photoCount = slide.querySelector('.photo-count');
+            const loadingSpinner = slide.querySelector('.loading-spinner');
+            
+            if (images.length > 0) {
+                // Update the image source
+                const firstImage = images[0];
+                img.src = firstImage.src;
+                img.alt = firstImage.alt || names;
+                img.classList.add('loaded');
+                
+                // Update photo count
+                photoCount.textContent = `${images.length} ${images.length === 1 ? 'photo' : 'photos'}`;
+                
+                // Hide loading spinner
+                if (loadingSpinner) {
+                    loadingSpinner.style.display = 'none';
+                }
+            } else {
+                // No images found
+                photoCount.textContent = 'No photos';
+                if (loadingSpinner) {
+                    loadingSpinner.style.display = 'none';
+                }
+            }
+            
+            // Set up click handler for the lightbox
+            setupLightboxHandler(slide, coupleId, names, images);
+            
+        } catch (error) {
+            console.error('Error loading couple data:', error);
+            const photoCount = slide.querySelector('.photo-count');
+            if (photoCount) {
+                photoCount.textContent = 'Failed to load';
+            }
+            const loadingSpinner = slide.querySelector('.loading-spinner');
+            if (loadingSpinner) {
+                loadingSpinner.style.display = 'none';
+            }
+        }
+    }
+    
+    // Set up lightbox handler for a slide
+    function setupLightboxHandler(slide, coupleId, names, images) {
+        const link = slide.querySelector('.couple-link');
+        if (!link) return;
+        
+        // Remove any existing click handlers
+        link.replaceWith(link.cloneNode(true));
+        const newLink = slide.querySelector('.couple-link');
+        
+        newLink.addEventListener('click', async (e) => {
+            e.preventDefault();
+            
+            // Show loading state for lightbox
+            const lightbox = new PhotoSwipeLightbox({
+                dataSource: images.length > 0 ? images : [{ src: 'image/placeholder.jpg', width: 1200, height: 800 }],
+                pswpModule: PhotoSwipe,
+                bgOpacity: 0.9,
+                showHideAnimationType: 'zoom',
+                imageScaleMethod: 'fit',
+                maxZoomLevel: 3,
+                preload: [1, 1],
+            });
+            
+            lightbox.on('uiRegister', function() {
+                // Add custom UI elements if needed
+            });
+            
+            lightbox.init();
+            lightbox.loadAndOpen(0);
+        });
+    }
+
+    // Initialize Swiper slider for pre-wedding stories
+    document.addEventListener('DOMContentLoaded', async function() {
+        const swiperWrapper = document.getElementById('couples-grid');
+        if (!swiperWrapper) return;
+        
+        try {
+            // Show loading state
+            swiperWrapper.innerHTML = `
+                <div class="swiper-slide loading-slide">
+                    <div class="loading-spinner"></div>
+                </div>
+            `;
+            
+            // Fetch couple folders
+            const response = await fetch('image/gallery/pre_wedding/');
+            const text = await response.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(text, 'text/html');
+            
+            const links = Array.from(doc.querySelectorAll('a'));
+            const coupleFolders = links
+                .map(link => link.getAttribute('href'))
+                .filter(href => href && !href.includes('.') && href !== '../')
+                .map(href => href.replace(/\/$/, ''));
+            
+            if (coupleFolders.length === 0) {
+                swiperWrapper.innerHTML = '<div class="swiper-slide"><p class="no-couples">No pre-wedding albums found.</p></div>';
+                return;
+            }
+            
+            // Clear loading state
+            swiperWrapper.innerHTML = '';
+            
+            // Create a slide for each couple
+            for (const folder of coupleFolders) {
+                // Create slide immediately at the start of each iteration
+                const slide = document.createElement('div');
+                slide.className = 'swiper-slide';
+                
+                try {
+                    // Clean the folder name to ensure it's just the couple ID
+                    const cleanCoupleId = folder.replace(/[\\\/]+$/, '').replace(/^.*[\\\/]/, '').replace(/[\\\/]+/g, '');
+                    const names = formatCoupleName(cleanCoupleId.replace(/[^a-zA-ZxX]/g, ''));
+                    console.log('Processing couple:', cleanCoupleId, 'Names:', names);
+                    
+                    // Construct clean image path without duplicates
+                    const cleanImagePath = `image/gallery/pre_wedding/${cleanCoupleId}/cover.jpg`.replace(/([^:]\/)\/+/g, '$1');
+                    
+                    // Add loading placeholder
+                    slide.innerHTML = `
+                        <div class="couple-card">
+                            <div class="couple-link" data-couple-id="${cleanCoupleId}">
+                                <div class="image-container">
+                                    <img 
+                                        src="image/placeholder.jpg" 
+                                        data-src="${cleanImagePath}"
+                                        alt="${names}" 
+                                        class="couple-image lazyload" 
+                                        loading="lazy"
+                                        onerror="this.onerror=null; this.src='image/placeholder.jpg'"
+                                    >
+                                    <div class="loading-spinner"></div>
+                                </div>
+                                <div class="couple-info">
+                                    <h3 class="couple-names">${names}</h3>
+                                    <p class="photo-count">Loading...</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Add slide to DOM immediately
+                    swiperWrapper.appendChild(slide);
+                    
+                    // Add click handler for the lightbox
+                    const link = slide.querySelector('.couple-link');
+                    if (link) {
+                        link.addEventListener('click', async (e) => {
+                            e.preventDefault();
+                            
+                            // Clean the coupleId to ensure no path segments
+                            const cleanCoupleId = coupleId.replace(/^.*[\\/]/, '');
+                            console.log('Loading images for couple:', cleanCoupleId);
+                            
+                            // Show loading state
+                            const photoCount = link.querySelector('.photo-count');
+                            if (photoCount) {
+                                photoCount.textContent = 'Loading images...';
+                            }
+                            
+                            try {
+                                // Ensure 'items' includes width and height for each image
+                                const items = await getCoupleImages(cleanCoupleId);
+                                
+                                // Exit if there are no images to show
+                                if (!items || items.length === 0) {
+                                    console.error('No items found for the lightbox.');
+                                    if (photoCount) {
+                                        photoCount.textContent = 'No photos available';
+                                    }
+                                    return;
+                                }
+                                
+                                // Update photo count
+                                if (photoCount) {
+                                    photoCount.textContent = `${items.length} ${items.length === 1 ? 'photo' : 'photos'}`;
+                                }
+                                
+                                const lightbox = new PhotoSwipeLightbox({
+                                    dataSource: items,
+                                    pswpModule: PhotoSwipe,
+                                    bgOpacity: 0.9,
+                                    showHideAnimationType: 'zoom',
+                                    imageScaleMethod: 'fit',
+                                    maxZoomLevel: 3,
+                                    paddingFn: () => ({ top: 40, bottom: 40, left: 20, right: 20 }),
+                                    preload: [1, 1]
+                                });
+
+                                // Add custom UI elements
+                                lightbox.on('uiRegister', function() {
+                                    // Add custom close button
+                                    lightbox.pswp.ui.registerElement({
+                                        name: 'custom-close-button',
+                                        className: 'pswp__button pswp__button--close',
+                                        title: 'Close (Esc)',
+                                        order: 10,
+                                        isButton: true,
+                                        html: '&times;',
+                                        onClick: () => lightbox.pswp.close()
+                                    });
+
+                                    // Add caption
+                                    lightbox.pswp.ui.registerElement({
+                                        name: 'custom-caption',
+                                        order: 9,
+                                        isButton: false,
+                                        appendTo: 'root',
+                                        html: '',
+                                        onInit: (el, pswp) => {
+                                            lightbox.pswp.on('change', () => {
+                                                const currSlideElement = lightbox.pswp.currSlide?.data.element;
+                                                let captionText = '';
+                                                if (currSlideElement) {
+                                                    const img = currSlideElement.querySelector('img');
+                                                    if (img) {
+                                                        captionText = img.getAttribute('alt') || '';
+                                                    }
+                                                }
+                                                el.innerHTML = captionText;
+                                            });
+                                        }
+                                    });
+                                });
+
+                                lightbox.init();
+                                lightbox.loadAndOpen(0);
+                                
+                            } catch (error) {
+                                console.error('Error loading lightbox:', error);
+                                if (photoCount) {
+                                    photoCount.textContent = 'Error loading album';
+                                }
+                            }
+                        });
+                    }
+                    
+                    // Start loading the actual data in the background
+                    loadCoupleData(cleanCoupleId, names, slide);
+                    
+                } catch (error) {
+                    console.error('Error creating slide for couple:', folder, error);
+                    const photoCount = slide?.querySelector('.photo-count');
+                    if (photoCount) {
+                        photoCount.textContent = 'Error loading album';
+                    }
+                }
+                
+                swiperWrapper.appendChild(slide);
+            }
+            
+            // Initialize Swiper after all slides are added
+            const swiper = new Swiper('.swiper-container', {
+                slidesPerView: 1.2,
+                spaceBetween: 15,
+                loop: true,
+                centeredSlides: true,
+                autoplay: {
+                    delay: 5000,
+                    disableOnInteraction: false,
+                    pauseOnMouseEnter: true,
+                },
+                pagination: {
+                    el: '.swiper-pagination',
+                    clickable: true,
+                    dynamicBullets: true,
+                },
+                navigation: {
+                    nextEl: '.swiper-button-next',
+                    prevEl: '.swiper-button-prev',
+                },
+                breakpoints: {
+                    480: {
+                        slidesPerView: 1.3,
+                        spaceBetween: 20,
+                    },
+                    640: {
+                        slidesPerView: 1.8,
+                        spaceBetween: 25,
+                        centeredSlides: false,
+                    },
+                    768: {
+                        slidesPerView: 2.5,
+                        spaceBetween: 30,
+                        centeredSlides: false,
+                    },
+                    1024: {
+                        slidesPerView: 3,
+                        spaceBetween: 30,
+                        centeredSlides: false,
+                    },
+                },
+                // Better touch support
+                touchRatio: 1.5,
+                touchAngle: 45,
+                grabCursor: true,
+                // Performance optimizations
+                watchSlidesProgress: true,
+                preloadImages: false,
+                lazy: {
+                    loadPrevNext: true,
+                    loadOnTransitionStart: true,
+                },
+                // Keyboard control
+                keyboard: {
+                    enabled: true,
+                    onlyInViewport: true,
+                },
+                // Accessibility
+                a11y: {
+                    prevSlideMessage: 'Previous slide',
+                    nextSlideMessage: 'Next slide',
+                    firstSlideMessage: 'This is the first slide',
+                    lastSlideMessage: 'This is the last slide',
+                    paginationBulletMessage: 'Go to slide {{index}}',
+                },
+            });
+            
+            // Pause autoplay when window loses focus
+            document.addEventListener('visibilitychange', function() {
+                if (document.hidden) {
+                    swiper.autoplay.stop();
+                } else {
+                    swiper.autoplay.start();
+                }
+            });
+            
+        } catch (error) {
+            console.error('Error loading pre-wedding couples:', error);
+            swiperWrapper.innerHTML = '<div class="swiper-slide"><p class="error">Error loading pre-wedding albums. Please try again later.</p></div>';
+        }
+    });
+    </script>
+    <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="pswp__bg"></div>
+        <div class="pswp__scroll-wrap">
+            <div class="pswp__container">
+                <div class="pswp__item"></div>
+                <div class="pswp__item"></div>
+                <div class="pswp__item"></div>
+            </div>
+            <div class="pswp__ui pswp__ui--hidden">
+                <div class="pswp__top-bar">
+                    <div class="pswp__counter"></div>
+                    <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+                    <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+                    <div class="pswp__preloader">
+                        <div class="pswp__preloader__icn">
+                            <div class="pswp__preloader__cut">
+                                <div class="pswp__preloader__donut"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="pswp__caption">
+                    <div class="pswp__caption__center"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
