@@ -1011,41 +1011,115 @@
         return names.length >= 2 ? `${names[0]} & ${names[1]}` : names[0] || 'Couple';
     }
 
-    // Helper function to get image dimensions
+    // Helper function to get image dimensions with better path handling
     function getImageDimensions(url) {
         return new Promise((resolve) => {
-            // Clean up the URL to prevent path duplication
-            const cleanUrl = url.replace(/(image\/gallery\/pre_wedding\/[^/]+)(?:\/image\/gallery\/pre_wedding\/[^/]+\/)/, '$1/');
-            
-            const img = new Image();
-            img.onload = function() {
-                resolve({
-                    width: this.naturalWidth,
-                    height: this.naturalHeight,
-                    src: this.src // Return the actual resolved URL
-                });
-            };
-            img.onerror = function() {
-                console.warn('Failed to load image:', cleanUrl);
-                // Fallback dimensions if image fails to load
+            // Clean and normalize the URL
+            let cleanUrl = url;
+            try {
+                // Handle relative URLs
+                if (!url.startsWith('http') && !url.startsWith('//') && !url.startsWith('data:')) {
+                    // Ensure single leading slash for relative URLs
+                    cleanUrl = url.replace(/^\/+/, '/');
+                }
+                
+                // Check cache first with cleaned URL
+                const cacheKey = `img_${btoa(cleanUrl)}`;
+                if (imageDimensionCache.has(cacheKey)) {
+                    resolve(imageDimensionCache.get(cacheKey));
+                    return;
+                }
+                
+                const img = new Image();
+                img.crossOrigin = 'anonymous'; // Handle CORS if needed
+                
+                img.onload = function() {
+                    const dimensions = {
+                        width: this.naturalWidth || 1200,
+                        height: this.naturalHeight || 800,
+                        src: cleanUrl // Return the cleaned URL
+                    };
+                    // Cache the result
+                    imageDimensionCache.set(cacheKey, dimensions);
+                    resolve(dimensions);
+                };
+                
+                img.onerror = function() {
+                    console.warn('Failed to load image:', cleanUrl);
+                    // Fallback dimensions if image fails to load
+                    resolve({
+                        width: 1200,
+                        height: 800,
+                        src: cleanUrl // Return the cleaned URL even if it failed to load
+                    });
+                };
+                
+                // Set src after setting up event handlers
+                img.src = cleanUrl;
+                
+                // If the image is already in the browser's cache, trigger onload manually
+                if (img.complete) {
+                    img.onload();
+                }
+                
+            } catch (error) {
+                console.error('Error in getImageDimensions:', error);
                 resolve({
                     width: 1200,
                     height: 800,
                     src: cleanUrl
                 });
-            };
-            img.src = cleanUrl;
+            }
         });
     }
 
     // Cache for storing image dimensions to avoid repeated requests
     const imageDimensionCache = new Map();
+    
+    // Function to update visible images with correct dimensions
+    function updateVisibleImages(updatedDimensions) {
+        if (!updatedDimensions || !updatedDimensions.length) return;
+        
+        // Find all images in the document
+        const images = document.querySelectorAll('img[data-src]');
+        
+        images.forEach(img => {
+            const src = img.getAttribute('data-src');
+            if (!src) return;
+            
+            // Clean the source for comparison
+            const cleanSrc = src.replace(/^\/+/, '');
+            
+            // Find matching dimension update
+            const update = updatedDimensions.find(dim => {
+                const dimSrc = typeof dim === 'string' ? dim : dim.src;
+                return dimSrc && dimSrc.includes(cleanSrc.split('/').pop());
+            });
+            
+            if (update) {
+                // Update the image source and dimensions
+                img.src = update.src || src;
+                if (update.width && update.height) {
+                    img.width = update.width;
+                    img.height = update.height;
+                }
+                img.removeAttribute('data-src');
+                
+                // Hide loading spinner if it exists
+                const spinner = img.parentElement.querySelector('.loading-spinner');
+                if (spinner) {
+                    spinner.style.display = 'none';
+                }
+            }
+        });
+    }
 
     // Function to get all images from a folder with optimized loading
     async function getCoupleImages(coupleId) {
         try {
             // Clean up the coupleId to remove any path segments and normalize
             const cleanCoupleId = coupleId.replace(/^.*[\\\/]/, '').replace(/[\\\/]+/g, '');
+            // Ensure we have a clean base path without any duplicates
             const basePath = `image/gallery/pre_wedding/${cleanCoupleId}`.replace(/([^:]\/)\/+/g, '$1');
             const cacheKey = `couple_${cleanCoupleId}`;
             
@@ -1059,9 +1133,11 @@
             }
             
             // First, return immediately with placeholder data
-            const response = await fetch(`${basePath}/`);
+            const cleanUrl = new URL(basePath, window.location.origin).pathname + '/';
+            const response = await fetch(cleanUrl);
             if (!response.ok) {
-                throw new Error(`Failed to fetch directory: ${response.status} ${response.statusText}`);
+                console.error(`Failed to fetch directory: ${cleanUrl} - ${response.status} ${response.statusText}`);
+                return [];
             }
             
             const text = await response.text();
@@ -1125,15 +1201,17 @@
     async function loadActualDimensions(coupleId, basePath, imageFiles) {
         const updatedDimensions = [];
         
-        // Clean up the basePath to remove any duplicate segments
+        // Clean up the basePath to remove any duplicate segments and normalize
         const cleanBasePath = basePath.replace(/([^:]\/)\/+/g, '$1');
         
         for (const [index, image] of imageFiles.entries()) {
             try {
+                // Clean the image filename
                 const cleanImage = image.replace(/\.\//, '').replace(/^\//, '');
-                // Ensure clean URL without duplicates
-                const imagePath = `${cleanBasePath}/${cleanImage}`.replace(/([^:]\/)\/+/g, '$1');
-                const imageUrl = new URL(imagePath, window.location.origin).pathname;
+                
+                // Construct clean URL without duplicates using URL API
+                const fullPath = `${cleanBasePath}/${cleanImage}`.replace(/([^:]\/)\/+/g, '$1');
+                const imageUrl = new URL(fullPath, window.location.origin).pathname;
                 
                 // Skip if already in cache
                 const cacheKey = `img_${btoa(imageUrl)}`;
@@ -1164,7 +1242,7 @@
                 updatedDimensions.push({
                     // Ensure clean URL without duplicates
                     src: new URL(
-                        `${cleanBasePath}/${image.replace(/\.\//, '').replace(/^\//, '')}`.replace(/([^:]\/)\/+/g, '$1'),
+                        `${cleanBasePath}/${image.replace(/\.\//, '').replace(/^\//, '')}`.replace(/([^:]\/)\/+/g, '$1').replace(/\/\//g, '/'),
                         window.location.origin
                     ).pathname,
                     width: 1200,
