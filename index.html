@@ -1044,9 +1044,9 @@
     // Function to get all images from a folder with optimized loading
     async function getCoupleImages(coupleId) {
         try {
-            // Clean up the coupleId to remove any path segments
-            const cleanCoupleId = coupleId.replace(/^.*[\\\/]/, '');
-            const basePath = `image/gallery/pre_wedding/${cleanCoupleId}`;
+            // Clean up the coupleId to remove any path segments and normalize
+            const cleanCoupleId = coupleId.replace(/^.*[\\\/]/, '').replace(/[\\\/]+/g, '');
+            const basePath = `image/gallery/pre_wedding/${cleanCoupleId}`.replace(/([^:]\/)\/+/g, '$1');
             const cacheKey = `couple_${cleanCoupleId}`;
             
             // Check if we have cached results
@@ -1087,7 +1087,9 @@
             // Create initial response with placeholder dimensions
             const initialResponse = imageFiles.map((image, index) => {
                 const cleanImage = image.replace(/\.\//, '').replace(/^\//, '');
-                const imageUrl = `${basePath}/${cleanImage}`;
+                // Ensure we don't have duplicate path segments
+                const imagePath = `${basePath}/${cleanImage}`.replace(/([^:]\/)\/+/g, '$1');
+                const imageUrl = new URL(imagePath, window.location.origin).pathname;
                 return {
                     src: imageUrl,
                     width: 1200,  // Placeholder dimensions
@@ -1123,10 +1125,15 @@
     async function loadActualDimensions(coupleId, basePath, imageFiles) {
         const updatedDimensions = [];
         
+        // Clean up the basePath to remove any duplicate segments
+        const cleanBasePath = basePath.replace(/([^:]\/)\/+/g, '$1');
+        
         for (const [index, image] of imageFiles.entries()) {
             try {
                 const cleanImage = image.replace(/\.\//, '').replace(/^\//, '');
-                const imageUrl = `${basePath}/${cleanImage}`;
+                // Ensure clean URL without duplicates
+                const imagePath = `${cleanBasePath}/${cleanImage}`.replace(/([^:]\/)\/+/g, '$1');
+                const imageUrl = new URL(imagePath, window.location.origin).pathname;
                 
                 // Skip if already in cache
                 const cacheKey = `img_${btoa(imageUrl)}`;
@@ -1155,7 +1162,11 @@
                 console.warn(`Error processing image ${image}:`, err);
                 // Keep the placeholder if there's an error
                 updatedDimensions.push({
-                    src: `${basePath}/${image.replace(/\.\//, '').replace(/^\//, '')}`,
+                    // Ensure clean URL without duplicates
+                    src: new URL(
+                        `${cleanBasePath}/${image.replace(/\.\//, '').replace(/^\//, '')}`.replace(/([^:]\/)\/+/g, '$1'),
+                        window.location.origin
+                    ).pathname,
                     width: 1200,
                     height: 800,
                     alt: `${coupleId.replace(/[xX]/, ' & ')} - Photo ${index + 1}`,
@@ -1286,20 +1297,21 @@
                 
                 try {
                     // Clean the folder name to ensure it's just the couple ID
-                    const coupleId = folder.replace(/[\\\/]+$/, '').replace(/^.*[\\\/]/, '');
-                    const names = formatCoupleName(coupleId.replace(/[^a-zA-ZxX]/g, ''));
-                    console.log('Processing couple:', coupleId, 'Names:', names);
+                    const cleanCoupleId = folder.replace(/[\\\/]+$/, '').replace(/^.*[\\\/]/, '').replace(/[\\\/]+/g, '');
+                    const names = formatCoupleName(cleanCoupleId.replace(/[^a-zA-ZxX]/g, ''));
+                    console.log('Processing couple:', cleanCoupleId, 'Names:', names);
                     
-                    // Add loading placeholder to the slide
+                    // Construct clean image path without duplicates
+                    const cleanImagePath = `image/gallery/pre_wedding/${cleanCoupleId}/cover.jpg`.replace(/([^:]\/)\/+/g, '$1');
                     
                     // Add loading placeholder
                     slide.innerHTML = `
                         <div class="couple-card">
-                            <div class="couple-link" data-couple-id="${coupleId}">
+                            <div class="couple-link" data-couple-id="${cleanCoupleId}">
                                 <div class="image-container">
                                     <img 
                                         src="image/placeholder.jpg" 
-                                        data-src="image/gallery/pre_wedding/${coupleId}/cover.jpg"
+                                        data-src="${cleanImagePath}"
                                         alt="${names}" 
                                         class="couple-image lazyload" 
                                         loading="lazy"
