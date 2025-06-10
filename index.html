@@ -499,9 +499,32 @@
     </style>
 
     <style>
+    /* Lazy loading styles */
+    .lazyload,
+    .lazyloading {
+        opacity: 0;
+        transition: opacity 300ms;
+    }
+    .lazyloaded {
+        opacity: 1;
+    }
+    .couple-image {
+        transition: opacity 0.3s ease-in-out;
+        background: #f5f5f5;
+    }
+    .couple-image.loaded {
+        opacity: 1;
+    }
+    .swiper-slide {
+        transition: transform 0.3s ease;
+    }
+    .swiper-slide:hover {
+        transform: translateY(-5px);
+    }
+
     /* Pre-Wedding Section Styles */
     .pre-wedding-section {
-        padding: 50px 0 60px;
+        padding: 60px 0;
         background-color: #f9f9f9;
         position: relative;
         overflow: hidden;
@@ -983,14 +1006,28 @@
         });
     }
 
-    // Function to get all images from a folder with their actual dimensions
+    // Cache for storing image dimensions to avoid repeated requests
+    const imageDimensionCache = new Map();
+
+    // Function to get all images from a folder with optimized loading
     async function getCoupleImages(coupleId) {
         try {
             // Clean up the coupleId to remove any path segments
-            const cleanCoupleId = coupleId.replace(/^.*[\\\/]/, ''); // Remove any path before the folder name
+            const cleanCoupleId = coupleId.replace(/^.*[\\\/]/, '');
             const basePath = `image/gallery/pre_wedding/${cleanCoupleId}`;
-            const response = await fetch(`${basePath}/`);
+            const cacheKey = `couple_${cleanCoupleId}`;
             
+            // Check if we have cached results
+            if (sessionStorage.getItem(cacheKey)) {
+                try {
+                    return JSON.parse(sessionStorage.getItem(cacheKey));
+                } catch (e) {
+                    console.warn('Failed to parse cached data, refetching...');
+                }
+            }
+            
+            // First, return immediately with placeholder data
+            const response = await fetch(`${basePath}/`);
             if (!response.ok) {
                 throw new Error(`Failed to fetch directory: ${response.status} ${response.statusText}`);
             }
@@ -1005,7 +1042,6 @@
                 .map(link => link.getAttribute('href'))
                 .filter(href => {
                     if (!href) return false;
-                    // Skip parent directory and any non-image files
                     if (href === '../' || href === './' || href.endsWith('/')) return false;
                     const ext = href.toLowerCase().substring(href.lastIndexOf('.'));
                     return imageExtensions.includes(ext);
@@ -1016,43 +1052,110 @@
                 return [];
             }
             
-            // Get actual image dimensions for each image
-            const imagesWithDimensions = [];
+            // Create initial response with placeholder dimensions
+            const initialResponse = imageFiles.map((image, index) => {
+                const cleanImage = image.replace(/\.\//, '').replace(/^\//, '');
+                const imageUrl = `${basePath}/${cleanImage}`;
+                return {
+                    src: imageUrl,
+                    width: 1200,  // Placeholder dimensions
+                    height: 800,   // Will be updated later
+                    alt: `${cleanCoupleId.replace(/[xX]/, ' & ')} - Photo ${index + 1}`,
+                    loading: 'lazy'
+                };
+            });
             
-            for (const image of imageFiles) {
-                try {
-                    // Clean up the image path
-                    let cleanImage = image;
-                    // Remove any leading slashes or parent directory references
-                    cleanImage = cleanImage.replace(/^\.\//, '').replace(/^\//, '');
-                    
-                    // Construct the full URL
-                    const imageUrl = `${basePath}/${cleanImage}`;
-                    
-                    // Skip if we've already processed this image
-                    if (imagesWithDimensions.some(img => img.src === imageUrl)) continue;
-                    
-                    const result = await getImageDimensions(imageUrl);
-                    imagesWithDimensions.push({
-                        src: result.src, // Use the cleaned URL from getImageDimensions
-                        width: result.width,
-                        height: result.height,
-                        alt: cleanCoupleId.replace(/[xX]/, ' & ')
-                    });
-                } catch (err) {
-                    console.warn(`Error processing image ${image}:`, err);
-                }
-            }
+            // Cache the initial response
+            sessionStorage.setItem(cacheKey, JSON.stringify(initialResponse));
             
-            if (imagesWithDimensions.length === 0) {
-                console.warn(`No valid images found in directory: ${basePath}/`);
-            }
+            // Load actual dimensions in the background
+            loadActualDimensions(cleanCoupleId, basePath, imageFiles)
+                .then(updatedDimensions => {
+                    // Update the cache with actual dimensions
+                    sessionStorage.setItem(cacheKey, JSON.stringify(updatedDimensions));
+                    
+                    // Update any visible images that might be using placeholders
+                    updateVisibleImages(updatedDimensions);
+                })
+                .catch(console.error);
             
-            return imagesWithDimensions;
+            return initialResponse;
+            
         } catch (error) {
             console.error('Error loading couple images:', error);
             return [];
         }
+    }
+    
+    // Function to load actual image dimensions in the background
+    async function loadActualDimensions(coupleId, basePath, imageFiles) {
+        const updatedDimensions = [];
+        
+        for (const [index, image] of imageFiles.entries()) {
+            try {
+                const cleanImage = image.replace(/\.\//, '').replace(/^\//, '');
+                const imageUrl = `${basePath}/${cleanImage}`;
+                
+                // Skip if already in cache
+                const cacheKey = `img_${btoa(imageUrl)}`;
+                if (imageDimensionCache.has(cacheKey)) {
+                    updatedDimensions.push(imageDimensionCache.get(cacheKey));
+                    continue;
+                }
+                
+                const result = await getImageDimensions(imageUrl);
+                const imageData = {
+                    src: result.src,
+                    width: result.width,
+                    height: result.height,
+                    alt: `${coupleId.replace(/[xX]/, ' & ')} - Photo ${index + 1}`,
+                    loading: 'lazy'
+                };
+                
+                // Cache the result
+                imageDimensionCache.set(cacheKey, imageData);
+                updatedDimensions.push(imageData);
+                
+                // Small delay to prevent UI blocking
+                if (index % 5 === 0) await new Promise(resolve => setTimeout(resolve, 50));
+                
+            } catch (err) {
+                console.warn(`Error processing image ${image}:`, err);
+                // Keep the placeholder if there's an error
+                updatedDimensions.push({
+                    src: `${basePath}/${image.replace(/\.\//, '').replace(/^\//, '')}`,
+                    width: 1200,
+                    height: 800,
+                    alt: `${coupleId.replace(/[xX]/, ' & ')} - Photo ${index + 1}`,
+                    loading: 'lazy'
+                });
+            }
+        }
+        
+        return updatedDimensions;
+    }
+    
+    // Function to update visible images with actual dimensions
+    function updateVisibleImages(updatedDimensions) {
+        document.querySelectorAll('.couple-image').forEach(img => {
+            const src = img.getAttribute('data-src') || img.src;
+            const updatedImg = updatedDimensions.find(dim => dim.src === src);
+            
+            if (updatedImg) {
+                // Update image dimensions if needed
+                if (img.naturalWidth === 0 || img.naturalHeight === 0) {
+                    img.src = updatedImg.src;
+                    img.width = updatedImg.width;
+                    img.height = updatedImg.height;
+                }
+                
+                // If this is a lazy-loaded image, update the data-src
+                if (img.hasAttribute('data-src')) {
+                    img.src = img.getAttribute('data-src');
+                    img.removeAttribute('data-src');
+                }
+            }
+        });
     }
 
     // Initialize Swiper slider for pre-wedding stories
@@ -1100,10 +1203,18 @@
                 
                 const slide = document.createElement('div');
                 slide.className = 'swiper-slide';
+                const firstImage = images[0] || { src: 'image/placeholder.jpg', alt: names };
                 slide.innerHTML = `
                     <div class="couple-card">
                         <div class="couple-link" data-couple-id="${coupleId}">
-                            <img src="${images[0].src}" alt="${names}" class="couple-image" loading="lazy" onerror="this.src='image/placeholder.jpg';">
+                            <img 
+                                src="image/placeholder.jpg" 
+                                data-src="${firstImage.src}" 
+                                alt="${firstImage.alt || names}" 
+                                class="couple-image lazyload" 
+                                loading="lazy" 
+                                onerror="this.src='image/placeholder.jpg'"
+                            >
                             <div class="couple-info">
                                 <h3 class="couple-names">${names}</h3>
                                 <p>${images.length} photos</p>
@@ -1111,6 +1222,22 @@
                         </div>
                     </div>
                 `;
+                
+                // Lazy load the first image
+                const img = slide.querySelector('img');
+                if ('loading' in HTMLImageElement.prototype) {
+                    // Native lazy loading is supported
+                    img.loading = 'lazy';
+                    img.src = firstImage.src;
+                } else {
+                    // Fallback for browsers that don't support loading attribute
+                    const lazyImage = new Image();
+                    lazyImage.src = firstImage.src;
+                    lazyImage.onload = () => {
+                        img.src = firstImage.src;
+                        img.classList.add('loaded');
+                    };
+                }
                 
                 // Add click handler for the lightbox
                 slide.querySelector('.couple-link').addEventListener('click', async (e) => {
