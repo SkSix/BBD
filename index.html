@@ -627,21 +627,53 @@
         opacity: 1;
     }
 
-    .couple-image {
+    .image-container {
+        position: relative;
         width: 100%;
         height: 280px;
+        overflow: hidden;
+        background: #f5f5f5;
+    }
+    
+    .couple-image {
+        width: 100%;
+        height: 100%;
         object-fit: cover;
-        transition: transform 0.5s ease;
+        transition: transform 0.5s ease, opacity 0.3s ease;
         aspect-ratio: 3/4;
+        opacity: 0;
+    }
+    
+    .couple-image.loaded {
+        opacity: 1;
+    }
+    
+    .loading-spinner {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 40px;
+        height: 40px;
+        border: 3px solid rgba(201, 160, 99, 0.3);
+        border-radius: 50%;
+        border-top-color: #c9a063;
+        animation: spin 1s ease-in-out infinite;
+    }
+    
+    @keyframes spin {
+        to { transform: translate(-50%, -50%) rotate(360deg); }
     }
     
     @media (max-width: 768px) {
+        .image-container,
         .couple-image {
             height: 220px;
         }
     }
     
     @media (max-width: 480px) {
+        .image-container,
         .couple-image {
             height: 200px;
         }
@@ -1135,26 +1167,81 @@
         return updatedDimensions;
     }
     
-    // Function to update visible images with actual dimensions
-    function updateVisibleImages(updatedDimensions) {
-        document.querySelectorAll('.couple-image').forEach(img => {
-            const src = img.getAttribute('data-src') || img.src;
-            const updatedImg = updatedDimensions.find(dim => dim.src === src);
+    // Function to load couple data in the background
+    async function loadCoupleData(coupleId, names, slide) {
+        try {
+            const images = await getCoupleImages(coupleId);
+            const img = slide.querySelector('.couple-image');
+            const photoCount = slide.querySelector('.photo-count');
+            const loadingSpinner = slide.querySelector('.loading-spinner');
             
-            if (updatedImg) {
-                // Update image dimensions if needed
-                if (img.naturalWidth === 0 || img.naturalHeight === 0) {
-                    img.src = updatedImg.src;
-                    img.width = updatedImg.width;
-                    img.height = updatedImg.height;
-                }
+            if (images.length > 0) {
+                // Update the image source
+                const firstImage = images[0];
+                img.src = firstImage.src;
+                img.alt = firstImage.alt || names;
+                img.classList.add('loaded');
                 
-                // If this is a lazy-loaded image, update the data-src
-                if (img.hasAttribute('data-src')) {
-                    img.src = img.getAttribute('data-src');
-                    img.removeAttribute('data-src');
+                // Update photo count
+                photoCount.textContent = `${images.length} ${images.length === 1 ? 'photo' : 'photos'}`;
+                
+                // Hide loading spinner
+                if (loadingSpinner) {
+                    loadingSpinner.style.display = 'none';
+                }
+            } else {
+                // No images found
+                photoCount.textContent = 'No photos';
+                if (loadingSpinner) {
+                    loadingSpinner.style.display = 'none';
                 }
             }
+            
+            // Set up click handler for the lightbox
+            setupLightboxHandler(slide, coupleId, names, images);
+            
+        } catch (error) {
+            console.error('Error loading couple data:', error);
+            const photoCount = slide.querySelector('.photo-count');
+            if (photoCount) {
+                photoCount.textContent = 'Failed to load';
+            }
+            const loadingSpinner = slide.querySelector('.loading-spinner');
+            if (loadingSpinner) {
+                loadingSpinner.style.display = 'none';
+            }
+        }
+    }
+    
+    // Set up lightbox handler for a slide
+    function setupLightboxHandler(slide, coupleId, names, images) {
+        const link = slide.querySelector('.couple-link');
+        if (!link) return;
+        
+        // Remove any existing click handlers
+        link.replaceWith(link.cloneNode(true));
+        const newLink = slide.querySelector('.couple-link');
+        
+        newLink.addEventListener('click', async (e) => {
+            e.preventDefault();
+            
+            // Show loading state for lightbox
+            const lightbox = new PhotoSwipeLightbox({
+                dataSource: images.length > 0 ? images : [{ src: 'image/placeholder.jpg', width: 1200, height: 800 }],
+                pswpModule: PhotoSwipe,
+                bgOpacity: 0.9,
+                showHideAnimationType: 'zoom',
+                imageScaleMethod: 'fit',
+                maxZoomLevel: 3,
+                preload: [1, 1],
+            });
+            
+            lightbox.on('uiRegister', function() {
+                // Add custom UI elements if needed
+            });
+            
+            lightbox.init();
+            lightbox.loadAndOpen(0);
         });
     }
 
@@ -1193,121 +1280,147 @@
             
             // Create a slide for each couple
             for (const folder of coupleFolders) {
-                // Clean the folder name to ensure it's just the couple ID
-                const coupleId = folder.replace(/[\\\/]+$/, '').replace(/^.*[\\\/]/, '');
-                const names = formatCoupleName(coupleId.replace(/[^a-zA-ZxX]/g, ''));
-                console.log('Processing couple:', coupleId, 'Names:', names);
-                const images = await getCoupleImages(coupleId);
-                
-                if (images.length === 0) continue;
-                
+                // Create slide immediately at the start of each iteration
                 const slide = document.createElement('div');
                 slide.className = 'swiper-slide';
-                const firstImage = images[0] || { src: 'image/placeholder.jpg', alt: names };
-                slide.innerHTML = `
-                    <div class="couple-card">
-                        <div class="couple-link" data-couple-id="${coupleId}">
-                            <img 
-                                src="image/placeholder.jpg" 
-                                data-src="${firstImage.src}" 
-                                alt="${firstImage.alt || names}" 
-                                class="couple-image lazyload" 
-                                loading="lazy" 
-                                onerror="this.src='image/placeholder.jpg'"
-                            >
-                            <div class="couple-info">
-                                <h3 class="couple-names">${names}</h3>
-                                <p>${images.length} photos</p>
+                
+                try {
+                    // Clean the folder name to ensure it's just the couple ID
+                    const coupleId = folder.replace(/[\\\/]+$/, '').replace(/^.*[\\\/]/, '');
+                    const names = formatCoupleName(coupleId.replace(/[^a-zA-ZxX]/g, ''));
+                    console.log('Processing couple:', coupleId, 'Names:', names);
+                    
+                    // Add loading placeholder to the slide
+                    
+                    // Add loading placeholder
+                    slide.innerHTML = `
+                        <div class="couple-card">
+                            <div class="couple-link" data-couple-id="${coupleId}">
+                                <div class="image-container">
+                                    <img 
+                                        src="image/placeholder.jpg" 
+                                        data-src="image/gallery/pre_wedding/${coupleId}/cover.jpg"
+                                        alt="${names}" 
+                                        class="couple-image lazyload" 
+                                        loading="lazy"
+                                        onerror="this.onerror=null; this.src='image/placeholder.jpg'"
+                                    >
+                                    <div class="loading-spinner"></div>
+                                </div>
+                                <div class="couple-info">
+                                    <h3 class="couple-names">${names}</h3>
+                                    <p class="photo-count">Loading...</p>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                `;
-                
-                // Lazy load the first image
-                const img = slide.querySelector('img');
-                if ('loading' in HTMLImageElement.prototype) {
-                    // Native lazy loading is supported
-                    img.loading = 'lazy';
-                    img.src = firstImage.src;
-                } else {
-                    // Fallback for browsers that don't support loading attribute
-                    const lazyImage = new Image();
-                    lazyImage.src = firstImage.src;
-                    lazyImage.onload = () => {
-                        img.src = firstImage.src;
-                        img.classList.add('loaded');
-                    };
-                }
-                
-                // Add click handler for the lightbox
-                slide.querySelector('.couple-link').addEventListener('click', async (e) => {
-                    e.preventDefault();
+                    `;
                     
-                    // Clean the coupleId to ensure no path segments
-                    const cleanCoupleId = coupleId.replace(/^.*[\\/]/, '');
-                    console.log('Loading images for couple:', cleanCoupleId);
+                    // Add slide to DOM immediately
+                    swiperWrapper.appendChild(slide);
                     
-                    // Ensure 'items' includes width and height for each image
-                    const items = await getCoupleImages(cleanCoupleId);
-                    
-                    // Exit if there are no images to show
-                    if (!items || items.length === 0) {
-                        console.error('No items found for the lightbox.');
-                        return;
+                    // Add click handler for the lightbox
+                    const link = slide.querySelector('.couple-link');
+                    if (link) {
+                        link.addEventListener('click', async (e) => {
+                            e.preventDefault();
+                            
+                            // Clean the coupleId to ensure no path segments
+                            const cleanCoupleId = coupleId.replace(/^.*[\\/]/, '');
+                            console.log('Loading images for couple:', cleanCoupleId);
+                            
+                            // Show loading state
+                            const photoCount = link.querySelector('.photo-count');
+                            if (photoCount) {
+                                photoCount.textContent = 'Loading images...';
+                            }
+                            
+                            try {
+                                // Ensure 'items' includes width and height for each image
+                                const items = await getCoupleImages(cleanCoupleId);
+                                
+                                // Exit if there are no images to show
+                                if (!items || items.length === 0) {
+                                    console.error('No items found for the lightbox.');
+                                    if (photoCount) {
+                                        photoCount.textContent = 'No photos available';
+                                    }
+                                    return;
+                                }
+                                
+                                // Update photo count
+                                if (photoCount) {
+                                    photoCount.textContent = `${items.length} ${items.length === 1 ? 'photo' : 'photos'}`;
+                                }
+                                
+                                const lightbox = new PhotoSwipeLightbox({
+                                    dataSource: items,
+                                    pswpModule: PhotoSwipe,
+                                    bgOpacity: 0.9,
+                                    showHideAnimationType: 'zoom',
+                                    imageScaleMethod: 'fit',
+                                    maxZoomLevel: 3,
+                                    paddingFn: () => ({ top: 40, bottom: 40, left: 20, right: 20 }),
+                                    preload: [1, 1]
+                                });
+
+                                // Add custom UI elements
+                                lightbox.on('uiRegister', function() {
+                                    // Add custom close button
+                                    lightbox.pswp.ui.registerElement({
+                                        name: 'custom-close-button',
+                                        className: 'pswp__button pswp__button--close',
+                                        title: 'Close (Esc)',
+                                        order: 10,
+                                        isButton: true,
+                                        html: '&times;',
+                                        onClick: () => lightbox.pswp.close()
+                                    });
+
+                                    // Add caption
+                                    lightbox.pswp.ui.registerElement({
+                                        name: 'custom-caption',
+                                        order: 9,
+                                        isButton: false,
+                                        appendTo: 'root',
+                                        html: '',
+                                        onInit: (el, pswp) => {
+                                            lightbox.pswp.on('change', () => {
+                                                const currSlideElement = lightbox.pswp.currSlide?.data.element;
+                                                let captionText = '';
+                                                if (currSlideElement) {
+                                                    const img = currSlideElement.querySelector('img');
+                                                    if (img) {
+                                                        captionText = img.getAttribute('alt') || '';
+                                                    }
+                                                }
+                                                el.innerHTML = captionText;
+                                            });
+                                        }
+                                    });
+                                });
+
+                                lightbox.init();
+                                lightbox.loadAndOpen(0);
+                                
+                            } catch (error) {
+                                console.error('Error loading lightbox:', error);
+                                if (photoCount) {
+                                    photoCount.textContent = 'Error loading album';
+                                }
+                            }
+                        });
                     }
                     
-                    const lightbox = new PhotoSwipeLightbox({
-                        // The dataSource is now the primary source of truth
-                        dataSource: items,
-                        pswpModule: PhotoSwipe,
-                        bgOpacity: 0.9,
-                        showHideAnimationType: 'zoom',
-                        imageScaleMethod: 'fit',
-                        maxZoomLevel: 3,
-                        paddingFn: () => ({ top: 40, bottom: 40, left: 20, right: 20 }),
-                        preload: [1, 1],
-                    });
+                    // Start loading the actual data in the background
+                    loadCoupleData(coupleId, names, slide);
                     
-                    // Add custom UI elements
-                    lightbox.on('uiRegister', function() {
-                        // Add caption
-                        lightbox.pswp.ui.registerElement({
-                            name: 'custom-caption',
-                            order: 9,
-                            isButton: false,
-                            appendTo: 'root',
-                            html: names,
-                            onInit: (el, pswp) => {
-                                pswp.on('change', () => {
-                                    const currItem = pswp.currSlide.data;
-                                    el.innerHTML = currItem.alt || names; 
-                                });
-                            }
-                        });
-                        
-                        // Add custom close button
-                        lightbox.pswp.ui.registerElement({
-                            name: 'custom-close-button',
-                            order: 1,
-                            isButton: true,
-                            tagName: 'button',
-                            html: `
-                                <div class="pswp__button--custom-close" title="Close (Esc)">
-                                    <svg viewBox="0 0 24 24" width="24" height="24">
-                                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
-                                    </svg>
-                                </div>
-                            `,
-                            onInit: (el, pswp) => {
-                                el.setAttribute('aria-label', 'Close');
-                                el.onclick = () => pswp.close();
-                            }
-                        });
-                    });
-                    
-                    lightbox.init();
-                    lightbox.loadAndOpen(0);
-                });
+                } catch (error) {
+                    console.error('Error creating slide for couple:', folder, error);
+                    const photoCount = slide?.querySelector('.photo-count');
+                    if (photoCount) {
+                        photoCount.textContent = 'Error loading album';
+                    }
+                }
                 
                 swiperWrapper.appendChild(slide);
             }
