@@ -35,9 +35,9 @@ function generateGalleryHTML() {
     // Define the categories and their corresponding folders
     const categories = {
         'wedding': 'image/gallery/wedding',
-        'engagement': 'image/gallery/engagement',
+        'haldi': 'image/gallery/haldi',
         'pre-wedding': 'image/gallery/pre_wedding',
-        'family': 'image/gallery/family'
+        'portrait': 'image/gallery/portrait'
     };
     
     // Create the gallery items array
@@ -104,18 +104,40 @@ function generateGalleryHTML() {
                     // Only process image files
                     if (['.jpg', '.jpeg', '.png', '.gif'].includes(ext)) {
                         const relativePath = path.join('image/gallery', file.relativePath).replace(/\\/g, '/');
-                        const displayName = category.charAt(0).toUpperCase() + category.slice(1);
+                        let displayName = category.charAt(0).toUpperCase() + category.slice(1);
                         
-                        const galleryItem = `
-                            <div class="gallery-item category-${category}" onclick="openLightbox('${relativePath}', '${file.name}')">
-                                <img src="${relativePath}" alt="${file.name}">
-                                <div class="gallery-overlay">
-                                    <i class="fas fa-expand"></i>
-                                    <span class="category-label">${displayName}</span>
+                        // Special handling for haldi category
+                        if (category === 'haldi') {
+                            // Extract couple name from directory name (replace 'x' with ' & ')
+                            let coupleName = path.dirname(file.relativePath).split(path.sep).pop();
+                            if (coupleName.endsWith('x')) {
+                                coupleName = coupleName.slice(0, -1); // Remove trailing 'x' if present
+                            }
+                            coupleName = coupleName.replace(/x/g, ' & ').trim();
+                            displayName = `Haldi - ${coupleName}`;
+                            
+                            const galleryItem = `
+                                <div class="gallery-item category-${category}" data-couple="${coupleName}" data-category="${category}" onclick="openLightbox('${relativePath}', '${displayName}')">
+                                    <img src="${relativePath}" alt="${displayName}">
+                                    <div class="gallery-overlay">
+                                        <i class="fas fa-expand"></i>
+                                        <span class="category-label">${displayName}</span>
+                                    </div>
                                 </div>
-                            </div>
-                        `;
-                        galleryItems.push(galleryItem);
+                            `;
+                            galleryItems.push(galleryItem);
+                        } else {
+                            const galleryItem = `
+                                <div class="gallery-item category-${category}" data-category="${category}" onclick="openLightbox('${relativePath}', '${displayName}')">
+                                    <img src="${relativePath}" alt="${displayName}">
+                                    <div class="gallery-overlay">
+                                        <i class="fas fa-expand"></i>
+                                        <span class="category-label">${displayName}</span>
+                                    </div>
+                                </div>
+                            `;
+                            galleryItems.push(galleryItem);
+                        }
                     }
                 });
             }

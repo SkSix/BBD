@@ -6,6 +6,7 @@
     <title>Bibaho Diaries - Wedding Photography</title>
     <link rel="stylesheet" href="header-style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@5.4.2/dist/photoswipe.min.css">
     <style>
         /* Modal Styles */
         .modal {
@@ -68,6 +69,48 @@
         }
         .modal-close:hover {
             background: #b38c4a;
+        }
+    </style>
+    <style>
+        /* Lightbox custom styles */
+        .pswp {
+            --pswp-bg: rgba(0, 0, 0, 0.9);
+        }
+        .pswp__caption__center {
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto;
+            font-size: 16px;
+            color: #fff;
+            padding: 10px;
+        }
+        .pswp__button--zoom {
+            display: block !important;
+        }
+        /* Hide the default close button */
+        .pswp__button--close {
+            display: none !important;
+        }
+        /* Style our custom close button */
+        .pswp__button--custom-close {
+            position: absolute;
+            right: 5px;
+            top: 20px;
+            width: 40px;
+            height: 40px;
+            opacity: 1;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 50%;
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1000;
+        }
+        .pswp__button--custom-close svg {
+            width: 24px;
+            height: 24px;
+            fill: white;
         }
     </style>
 </head>
@@ -315,25 +358,415 @@
             </div>
             <div class="memories-line"></div>
         </div>
-        <div class="memories-cards">
-            <div class="memory-card" style="background-image: url('image/memories-prewedding.jpg');">
-                <span class="memory-label">PREWEDDING</span>
+        <div class="memories-cards" id="memories-cards">
+            <!-- Cards will be populated by JavaScript -->
+            <div class="memory-card loading" id="prewedding-card">
+                <div class="loading-spinner"></div>
+                <span class="memory-label">PRE-WEDDING</span>
             </div>
-            <div class="memory-card" style="background-image: url('image/memories-traditional.jpg');">
-                <span class="memory-label">TRADITIONAL</span>
+            <div class="memory-card loading" id="haldi-card">
+                <div class="loading-spinner"></div>
+                <span class="memory-label">HALDI</span>
             </div>
-            <div class="memory-card" style="background-image: url('image/memories-modern.jpg');">
-                <span class="memory-label">MODERN</span>
+            <div class="memory-card loading" id="wedding-card">
+                <div class="loading-spinner"></div>
+                <span class="memory-label">WEDDING</span>
             </div>
-            <div class="memory-card" style="background-image: url('image/memories-destination.jpg');">
-                <span class="memory-label">DESTINATION</span>
-            </div>
-            <div class="memory-card" style="background-image: url('image/memories-events.jpg');">
-                <span class="memory-label">EVENTS</span>
+            <div class="memory-card loading" id="portrait-card">
+                <div class="loading-spinner"></div>
+                <span class="memory-label">PORTRAIT</span>
             </div>
         </div>
     </section>
+    
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Function to fetch the first image from each category
+        async function loadFirstImages() {
+            try {
+                // Fetch gallery items
+                const response = await fetch('gallery-items.html');
+                const html = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                
+                // Process each category
+                const categories = ['pre-wedding', 'haldi', 'wedding', 'portrait'];
+                
+                categories.forEach(category => {
+                    // Find the first image for this category
+                    const firstItem = doc.querySelector(`.category-${category}`);
+                    if (firstItem) {
+                        const img = firstItem.querySelector('img');
+                        if (img) {
+                            const card = document.getElementById(`${category.replace('-', '')}-card`);
+                            if (card) {
+                                // Update the card with the image and link
+                                card.innerHTML = `
+                                    <a href="gallery.html?filter=${category}" class="memory-card-link">
+                                        <div class="memory-card-image" style="background-image: url('${img.src}');"></div>
+                                        <span class="memory-label">${category.toUpperCase()}</span>
+                                    </a>
+                                `;
+                            }
+                        }
+                    }
+                });
+                
+            } catch (error) {
+                console.error('Error loading gallery images:', error);
+            }
+        }
+        
+        // Load the first images
+        loadFirstImages();
+    });
+    </script>
+    
+    <style>
+    /* Add styles for the loading state */
+    .memory-card {
+        position: relative;
+        min-height: 300px;
+        display: flex;
+        flex-direction: column;
+        padding: 0;
+        background: #f8f8f8;
+        border-radius: 8px;
+        overflow: hidden;
+        transition: transform 0.3s ease;
+    }
+    
+    .memory-card.loading {
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .memory-card-link {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        height: 100%;
+        text-decoration: none;
+        color: inherit;
+        position: relative;
+    }
+    
+    .memory-card-image {
+        width: 100%;
+        height: 100%;
+        background-size: cover;
+        background-position: center;
+        transition: transform 0.3s ease;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+    
+    .memory-card:hover .memory-card-image {
+        transform: scale(1.05);
+    }
+    
+    .loading-spinner {
+        width: 30px;
+        height: 30px;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: #fff;
+        animation: spin 1s ease-in-out infinite;
+        margin-bottom: 10px;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    .memory-label {
+        position: relative;
+        background: rgba(0, 0, 0, 0.5);
+        color: RGB(255, 214, 0);
+        padding: 10px 25px;
+        margin: 140px auto 0;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        text-align: center;
+        width: max-content;
+        z-index: 2;
+    }
+    </style>
 
+    <style>
+    /* Pre-Wedding Section Styles */
+    .pre-wedding-section {
+        padding: 50px 0 60px;
+        background-color: #f9f9f9;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .swiper-container {
+        width: 100%;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 10px 20px 50px;
+        position: relative;
+    }
+    
+    .swiper-slide {
+        background: #fff;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        height: auto;
+        margin: 10px 0;
+        opacity: 0.9;
+    }
+    
+    .swiper-slide-active {
+        opacity: 1;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    }
+    
+    /* Remove hover effect on touch devices */
+    @media (hover: hover) and (pointer: fine) {
+        .swiper-slide:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+    }
+    
+    .loading-slide {
+        min-height: 300px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    @media (max-width: 480px) {
+        .loading-slide {
+            min-height: 250px;
+        }
+    }
+
+    .couple-card {
+        position: relative;
+        border-radius: 12px;
+        overflow: hidden;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Navigation buttons - Hidden by default */
+    .swiper-button-next,
+    .swiper-button-prev {
+        display: none !important; /* Force hide by default */
+    }
+    
+    /* Show navigation buttons only on larger screens */
+    @media (min-width: 992px) {
+        .swiper-button-next,
+        .swiper-button-prev {
+            display: flex !important;
+            color: #c9a063;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0);
+            border-radius: 50%;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+        
+        .swiper-button-next:hover,
+        .swiper-button-prev:hover {
+            color: #b38c4a;
+            transform: scale(1.2);
+        }
+    }
+    
+    /* Pagination */
+    .swiper-pagination-bullet {
+        background: #c9a063;
+        opacity: 0.5;
+        width: 10px;
+        height: 10px;
+        margin: 0 5px;
+    }
+    
+    .swiper-pagination-bullet-active {
+        background: #c9a063;
+        opacity: 1;
+    }
+
+    .couple-image {
+        width: 100%;
+        height: 280px;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+        aspect-ratio: 3/4;
+    }
+    
+    @media (max-width: 768px) {
+        .couple-image {
+            height: 220px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .couple-image {
+            height: 200px;
+        }
+    }
+
+    .swiper-slide:hover .couple-image {
+        transform: scale(1.05);
+    }
+
+    .couple-info {
+        padding: 15px 10px;
+        background: #fff;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        text-align: center;
+    }
+    
+    .couple-info h3 {
+        margin: 0 0 8px;
+        color: #333;
+        font-size: 1.1em;
+        font-weight: 600;
+        line-height: 1.3;
+        padding: 0 5px;
+    }
+    
+    @media (max-width: 480px) {
+        .couple-info h3 {
+            font-size: 1em;
+            margin-bottom: 5px;
+        }
+    }
+    
+    .couple-info p {
+        margin: 0;
+        color: #888;
+        font-size: 0.85em;
+        font-weight: 500;
+    }
+    
+    @media (max-width: 480px) {
+        .couple-info p {
+            font-size: 0.8em;
+        }
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .swiper-container {
+            padding: 20px 30px 50px;
+        }
+        
+        .couple-image {
+            height: 250px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .swiper-container {
+            padding: 20px 15px 40px;
+        }
+        
+        .couple-image {
+            height: 200px;
+        }
+    }
+
+    .couple-names {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin: 0 0 5px 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .couple-location {
+        font-size: 0.9rem;
+        opacity: 0.9;
+        margin: 0;
+    }
+
+    @media (max-width: 768px) {
+        .couples-grid {
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            padding: 0 20px;
+            gap: 20px;
+        }
+        
+        .couple-names {
+            font-size: 1.3rem;
+        }
+    }
+    </style>
+
+    <style>
+    /* Additional styles for the pre-wedding section */
+    .no-couples, .error {
+        text-align: center;
+        grid-column: 1 / -1;
+        padding: 40px;
+        color: #666;
+        font-size: 1.1rem;
+    }
+    
+    .error {
+        color: #d32f2f;
+    }
+    
+    .couple-link {
+        text-decoration: none;
+        color: inherit;
+        display: block;
+        height: 100%;
+    }
+    </style>
+
+    <!-- Pre-Wedding Section -->
+    <section class="pre-wedding-section">
+        <div class="memories-title-row">
+            <div class="memories-line"></div>
+            <div class="memories-title">
+                <span class="memories-heart">❤</span>
+                Pre-Wedding Stories
+            </div>
+            <div class="memories-line"></div>
+        </div>
+        <!-- Slider main container -->
+        <div class="swiper-container">
+            <!-- Additional required wrapper -->
+            <div class="swiper-wrapper" id="couples-grid">
+                <!-- Slides will be added here by JavaScript -->
+                <div class="swiper-slide loading-slide">
+                    <div class="loading-spinner"></div>
+                </div>
+            </div>
+            <!-- Navigation buttons -->
+            <div class="swiper-button-prev"></div>
+            <div class="swiper-button-next"></div>
+            <!-- Pagination -->
+            <div class="swiper-pagination"></div>
+        </div>
+    </section>
+    
+    <!-- Add Swiper CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css">
+    <!-- Add Swiper JS -->
+    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
 
     <!-- Our Team & Office Section -->
     <section class="our-team-wrapper">
@@ -512,5 +945,308 @@
     </script>
     <script src="js/script.js"></script>
     <script src="js/header.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/photoswipe@5.4.2/dist/umd/photoswipe.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/photoswipe@5.4.2/dist/umd/photoswipe-lightbox.umd.min.js"></script>
+    <script>
+    // Function to format couple names from folder name
+    function formatCoupleName(folderName) {
+        const names = folderName.split(/[xX]/).map(name => {
+            return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+        });
+        return names.length >= 2 ? `${names[0]} & ${names[1]}` : names[0] || 'Couple';
+    }
+
+    // Helper function to get image dimensions
+    function getImageDimensions(url) {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = function() {
+                resolve({
+                    width: this.naturalWidth,
+                    height: this.naturalHeight
+                });
+            };
+            img.onerror = function() {
+                // Fallback dimensions if image fails to load
+                resolve({
+                    width: 1200,
+                    height: 800
+                });
+            };
+            img.src = url;
+        });
+    }
+
+    // Function to get all images from a folder with their actual dimensions
+    async function getCoupleImages(coupleId) {
+        try {
+            const response = await fetch(`image/gallery/pre_wedding/${coupleId}/`);
+            const text = await response.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(text, 'text/html');
+            const links = Array.from(doc.querySelectorAll('a'));
+            
+            const imageExtensions = ['.jpg', '.jpeg', '.png', '.webp'];
+            const imageFiles = links
+                .map(link => link.getAttribute('href'))
+                .filter(href => {
+                    if (!href) return false;
+                    const ext = href.toLowerCase().substring(href.lastIndexOf('.'));
+                    return imageExtensions.includes(ext);
+                });
+            
+            // Process images in parallel to get their dimensions
+            const imagesWithDimensions = await Promise.all(
+                imageFiles.map(async (image) => {
+                    const imageUrl = `image/gallery/pre_wedding/${coupleId}/${image}`;
+                    const dimensions = await getImageDimensions(imageUrl);
+                    return {
+                        src: imageUrl,
+                        width: dimensions.width,
+                        height: dimensions.height
+                    };
+                })
+            );
+            
+            return imagesWithDimensions;
+        } catch (error) {
+            console.error('Error loading couple images:', error);
+            return [];
+        }
+    }
+
+    // Initialize Swiper slider for pre-wedding stories
+    document.addEventListener('DOMContentLoaded', async function() {
+        const swiperWrapper = document.getElementById('couples-grid');
+        if (!swiperWrapper) return;
+        
+        try {
+            // Show loading state
+            swiperWrapper.innerHTML = `
+                <div class="swiper-slide loading-slide">
+                    <div class="loading-spinner"></div>
+                </div>
+            `;
+            
+            // Fetch couple folders
+            const response = await fetch('image/gallery/pre_wedding/');
+            const text = await response.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(text, 'text/html');
+            
+            const links = Array.from(doc.querySelectorAll('a'));
+            const coupleFolders = links
+                .map(link => link.getAttribute('href'))
+                .filter(href => href && !href.includes('.') && href !== '../')
+                .map(href => href.replace(/\/$/, ''));
+            
+            if (coupleFolders.length === 0) {
+                swiperWrapper.innerHTML = '<div class="swiper-slide"><p class="no-couples">No pre-wedding albums found.</p></div>';
+                return;
+            }
+            
+            // Clear loading state
+            swiperWrapper.innerHTML = '';
+            
+            // Create a slide for each couple
+            for (const folder of coupleFolders) {
+                const coupleId = folder;
+                const names = formatCoupleName(folder.replace(/[^a-zA-ZxX]/g, ''));
+                const images = await getCoupleImages(coupleId);
+                
+                if (images.length === 0) continue;
+                
+                const slide = document.createElement('div');
+                slide.className = 'swiper-slide';
+                slide.innerHTML = `
+                    <div class="couple-card">
+                        <div class="couple-link" data-couple-id="${coupleId}">
+                            <img src="${images[0].src}" alt="${names}" class="couple-image" loading="lazy" onerror="this.src='image/placeholder.jpg';">
+                            <div class="couple-info">
+                                <h3 class="couple-names">${names}</h3>
+                                <p>${images.length} photos</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Add click handler for the lightbox
+                slide.querySelector('.couple-link').addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    
+                    // Ensure 'items' includes width and height for each image
+                    const items = await getCoupleImages(coupleId);
+                    
+                    // Exit if there are no images to show
+                    if (!items || items.length === 0) {
+                        console.error('No items found for the lightbox.');
+                        return;
+                    }
+                    
+                    const lightbox = new PhotoSwipeLightbox({
+                        // The dataSource is now the primary source of truth
+                        dataSource: items,
+                        pswpModule: PhotoSwipe,
+                        bgOpacity: 0.9,
+                        showHideAnimationType: 'zoom',
+                        imageScaleMethod: 'fit',
+                        maxZoomLevel: 3,
+                        paddingFn: () => ({ top: 40, bottom: 40, left: 20, right: 20 }),
+                        preload: [1, 1],
+                    });
+                    
+                    // Add custom UI elements
+                    lightbox.on('uiRegister', function() {
+                        // Add caption
+                        lightbox.pswp.ui.registerElement({
+                            name: 'custom-caption',
+                            order: 9,
+                            isButton: false,
+                            appendTo: 'root',
+                            html: names,
+                            onInit: (el, pswp) => {
+                                pswp.on('change', () => {
+                                    const currItem = pswp.currSlide.data;
+                                    el.innerHTML = currItem.alt || names; 
+                                });
+                            }
+                        });
+                        
+                        // Add custom close button
+                        lightbox.pswp.ui.registerElement({
+                            name: 'custom-close-button',
+                            order: 1,
+                            isButton: true,
+                            tagName: 'button',
+                            html: `
+                                <div class="pswp__button--custom-close" title="Close (Esc)">
+                                    <svg viewBox="0 0 24 24" width="24" height="24">
+                                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                                    </svg>
+                                </div>
+                            `,
+                            onInit: (el, pswp) => {
+                                el.setAttribute('aria-label', 'Close');
+                                el.onclick = () => pswp.close();
+                            }
+                        });
+                    });
+                    
+                    lightbox.init();
+                    lightbox.loadAndOpen(0);
+                });
+                
+                swiperWrapper.appendChild(slide);
+            }
+            
+            // Initialize Swiper after all slides are added
+            const swiper = new Swiper('.swiper-container', {
+                slidesPerView: 1.2,
+                spaceBetween: 15,
+                loop: true,
+                centeredSlides: true,
+                autoplay: {
+                    delay: 5000,
+                    disableOnInteraction: false,
+                    pauseOnMouseEnter: true,
+                },
+                pagination: {
+                    el: '.swiper-pagination',
+                    clickable: true,
+                    dynamicBullets: true,
+                },
+                navigation: {
+                    nextEl: '.swiper-button-next',
+                    prevEl: '.swiper-button-prev',
+                },
+                breakpoints: {
+                    480: {
+                        slidesPerView: 1.3,
+                        spaceBetween: 20,
+                    },
+                    640: {
+                        slidesPerView: 1.8,
+                        spaceBetween: 25,
+                        centeredSlides: false,
+                    },
+                    768: {
+                        slidesPerView: 2.5,
+                        spaceBetween: 30,
+                        centeredSlides: false,
+                    },
+                    1024: {
+                        slidesPerView: 3,
+                        spaceBetween: 30,
+                        centeredSlides: false,
+                    },
+                },
+                // Better touch support
+                touchRatio: 1.5,
+                touchAngle: 45,
+                grabCursor: true,
+                // Performance optimizations
+                watchSlidesProgress: true,
+                preloadImages: false,
+                lazy: {
+                    loadPrevNext: true,
+                    loadOnTransitionStart: true,
+                },
+                // Keyboard control
+                keyboard: {
+                    enabled: true,
+                    onlyInViewport: true,
+                },
+                // Accessibility
+                a11y: {
+                    prevSlideMessage: 'Previous slide',
+                    nextSlideMessage: 'Next slide',
+                    firstSlideMessage: 'This is the first slide',
+                    lastSlideMessage: 'This is the last slide',
+                    paginationBulletMessage: 'Go to slide {{index}}',
+                },
+            });
+            
+            // Pause autoplay when window loses focus
+            document.addEventListener('visibilitychange', function() {
+                if (document.hidden) {
+                    swiper.autoplay.stop();
+                } else {
+                    swiper.autoplay.start();
+                }
+            });
+            
+        } catch (error) {
+            console.error('Error loading pre-wedding couples:', error);
+            swiperWrapper.innerHTML = '<div class="swiper-slide"><p class="error">Error loading pre-wedding albums. Please try again later.</p></div>';
+        }
+    });
+    </script>
+    <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="pswp__bg"></div>
+        <div class="pswp__scroll-wrap">
+            <div class="pswp__container">
+                <div class="pswp__item"></div>
+                <div class="pswp__item"></div>
+                <div class="pswp__item"></div>
+            </div>
+            <div class="pswp__ui pswp__ui--hidden">
+                <div class="pswp__top-bar">
+                    <div class="pswp__counter"></div>
+                    <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+                    <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+                    <div class="pswp__preloader">
+                        <div class="pswp__preloader__icn">
+                            <div class="pswp__preloader__cut">
+                                <div class="pswp__preloader__donut"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="pswp__caption">
+                    <div class="pswp__caption__center"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
