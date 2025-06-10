@@ -1132,7 +1132,7 @@
                 }
             }
             
-            // First, return immediately with placeholder data
+            // Construct the clean URL for fetching directory listing
             const cleanUrl = new URL(basePath, window.location.origin).pathname + '/';
             const response = await fetch(cleanUrl);
             if (!response.ok) {
@@ -1201,16 +1201,21 @@
     async function loadActualDimensions(coupleId, basePath, imageFiles) {
         const updatedDimensions = [];
         
-        // Clean up the basePath to remove any duplicate segments and normalize
-        const cleanBasePath = basePath.replace(/([^:]\/)\/+/g, '$1');
+        // Clean up the basePath to ensure no trailing slashes and normalize
+        const cleanBasePath = basePath.replace(/([^:]\/)\/+$/, '$1').replace(/([^:]\/)\/+/g, '$1');
         
         for (const [index, image] of imageFiles.entries()) {
             try {
-                // Clean the image filename
-                const cleanImage = image.replace(/\.\//, '').replace(/^\//, '');
+                // Clean the image filename - remove any leading ./ or /
+                const cleanImage = image.replace(/^\.?\/+/, '');
                 
-                // Construct clean URL without duplicates using URL API
-                const fullPath = `${cleanBasePath}/${cleanImage}`.replace(/([^:]\/)\/+/g, '$1');
+                // Construct the full path and ensure no duplicate path segments
+                let fullPath = `${cleanBasePath}/${cleanImage}`;
+                
+                // Normalize the path to remove any remaining duplicate slashes
+                fullPath = fullPath.replace(/([^:]\/)\/+/g, '$1');
+                
+                // Create a proper URL object to handle path normalization
                 const imageUrl = new URL(fullPath, window.location.origin).pathname;
                 
                 // Skip if already in cache
@@ -1220,9 +1225,12 @@
                     continue;
                 }
                 
+                // Get the actual dimensions
                 const result = await getImageDimensions(imageUrl);
+                
+                // Create the image data object with cleaned URL
                 const imageData = {
-                    src: result.src,
+                    src: imageUrl, // Use the normalized URL
                     width: result.width,
                     height: result.height,
                     alt: `${coupleId.replace(/[xX]/, ' & ')} - Photo ${index + 1}`,
@@ -1233,18 +1241,22 @@
                 imageDimensionCache.set(cacheKey, imageData);
                 updatedDimensions.push(imageData);
                 
-                // Small delay to prevent UI blocking
-                if (index % 5 === 0) await new Promise(resolve => setTimeout(resolve, 50));
+                // Add a small delay every 5 images to prevent UI blocking
+                if (index % 5 === 0) {
+                    await new Promise(resolve => setTimeout(resolve, 50));
+                }
                 
             } catch (err) {
                 console.warn(`Error processing image ${image}:`, err);
-                // Keep the placeholder if there's an error
+                
+                // Clean the image path for the fallback
+                const cleanImage = image.replace(/^\.?\/+/, '');
+                const fallbackPath = `${cleanBasePath}/${cleanImage}`.replace(/([^:]\/)\/+/g, '$1');
+                const fallbackUrl = new URL(fallbackPath, window.location.origin).pathname;
+                
+                // Fallback with placeholder data
                 updatedDimensions.push({
-                    // Ensure clean URL without duplicates
-                    src: new URL(
-                        `${cleanBasePath}/${image.replace(/\.\//, '').replace(/^\//, '')}`.replace(/([^:]\/)\/+/g, '$1').replace(/\/\//g, '/'),
-                        window.location.origin
-                    ).pathname,
+                    src: fallbackUrl,
                     width: 1200,
                     height: 800,
                     alt: `${coupleId.replace(/[xX]/, ' & ')} - Photo ${index + 1}`,
