@@ -606,12 +606,46 @@
 
     .couple-image {
         width: 100%;
-        height: 280px;
+        height: 250px;
         object-fit: cover;
-        transition: transform 0.5s ease;
-        aspect-ratio: 3/4;
+        border-radius: 8px 8px 0 0;
+        transition: transform 0.3s ease, opacity 0.3s ease;
+        opacity: 0;
+        will-change: transform, opacity;
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: -moz-crisp-edges;
+        image-rendering: -o-crisp-edges;
+        image-rendering: crisp-edges;
+        -ms-interpolation-mode: nearest-neighbor;
     }
-    
+
+    .couple-image.loaded {
+        opacity: 1;
+    }
+
+    .image-container {
+        position: relative;
+        background: #f5f5f5;
+        min-height: 250px;
+    }
+
+    .loading-spinner {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 30px;
+        height: 30px;
+        border: 3px solid rgba(0, 0, 0, 0.1);
+        border-radius: 50%;
+        border-top-color: #3498db;
+        animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+        to { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
     @media (max-width: 768px) {
         .couple-image {
             height: 220px;
@@ -1055,6 +1089,45 @@
         }
     }
 
+    // Initialize lazy loading with Intersection Observer
+    function initLazyLoading() {
+        const lazyImages = document.querySelectorAll('img.lazyload');
+        
+        if ('IntersectionObserver' in window) {
+            const imageObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        if (img.dataset.src) {
+                            // Load the actual image
+                            const src = img.dataset.src;
+                            img.addEventListener('load', () => {
+                                img.classList.add('loaded');
+                                img.parentNode.querySelector('.loading-spinner')?.remove();
+                            });
+                            img.src = src;
+                            img.removeAttribute('data-src');
+                            imageObserver.unobserve(img);
+                        }
+                    }
+                });
+            }, {
+                rootMargin: '100px 0px', // Start loading 100px before the image comes into view
+                threshold: 0.01
+            });
+
+            lazyImages.forEach(img => imageObserver.observe(img));
+        } else {
+            // Fallback for browsers that don't support IntersectionObserver
+            lazyImages.forEach(img => {
+                if (img.dataset.src) {
+                    img.src = img.dataset.src;
+                    img.removeAttribute('data-src');
+                }
+            });
+        }
+    }
+
     // Initialize Swiper slider for pre-wedding stories
     document.addEventListener('DOMContentLoaded', async function() {
         const swiperWrapper = document.getElementById('couples-grid');
@@ -1100,10 +1173,24 @@
                 
                 const slide = document.createElement('div');
                 slide.className = 'swiper-slide';
+                // Create a low-quality image placeholder (LQIP) for faster initial load
+                const lqip = images[0].src.replace(/\.(jpg|jpeg|png)/i, '-thumbnail.$1') || 'image/placeholder.jpg';
+                
                 slide.innerHTML = `
                     <div class="couple-card">
                         <div class="couple-link" data-couple-id="${coupleId}">
-                            <img src="${images[0].src}" alt="${names}" class="couple-image" loading="lazy" onerror="this.src='image/placeholder.jpg';">
+                            <div class="image-container">
+                                <!-- Low quality image placeholder (LQIP) -->
+                                <img 
+                                    src="${lqip}" 
+                                    data-src="${images[0].src}" 
+                                    alt="${names}" 
+                                    class="couple-image lazyload"
+                                    loading="lazy"
+                                    onerror="this.src='image/placeholder.jpg'; this.onerror=null;"
+                                >
+                                <div class="loading-spinner"></div>
+                            </div>
                             <div class="couple-info">
                                 <h3 class="couple-names">${names}</h3>
                                 <p>${images.length} photos</p>
@@ -1260,6 +1347,9 @@
                     swiper.autoplay.start();
                 }
             });
+            
+            // Initialize lazy loading after Swiper is set up
+            initLazyLoading();
             
         } catch (error) {
             console.error('Error loading pre-wedding couples:', error);
