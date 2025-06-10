@@ -980,8 +980,15 @@
     // Function to get all images from a folder with their actual dimensions
     async function getCoupleImages(coupleId) {
         try {
-            const basePath = `image/gallery/pre_wedding/${coupleId}`;
+            // Clean up the coupleId to remove any path segments
+            const cleanCoupleId = coupleId.replace(/^.*[\\\/]/, ''); // Remove any path before the folder name
+            const basePath = `image/gallery/pre_wedding/${cleanCoupleId}`;
             const response = await fetch(`${basePath}/`);
+            
+            if (!response.ok) {
+                throw new Error(`Failed to fetch directory: ${response.status} ${response.statusText}`);
+            }
+            
             const text = await response.text();
             const parser = new DOMParser();
             const doc = parser.parseFromString(text, 'text/html');
@@ -992,26 +999,48 @@
                 .map(link => link.getAttribute('href'))
                 .filter(href => {
                     if (!href) return false;
+                    // Skip parent directory and any non-image files
+                    if (href === '../' || href === './' || href.endsWith('/')) return false;
                     const ext = href.toLowerCase().substring(href.lastIndexOf('.'));
                     return imageExtensions.includes(ext);
                 });
                 
-            if (imageFiles.length === 0) return [];
-                
+            if (imageFiles.length === 0) {
+                console.warn(`No images found in directory: ${basePath}/`);
+                return [];
+            }
+            
             // Get actual image dimensions for each image
-            const imagesWithDimensions = await Promise.all(
-                imageFiles.map(async (image) => {
-                    // Remove any duplicate path segments
-                    const cleanImagePath = image.replace(/^\//, ''); // Remove leading slash if present
-                    const imageUrl = `${basePath}/${cleanImagePath}`;
+            const imagesWithDimensions = [];
+            
+            for (const image of imageFiles) {
+                try {
+                    // Clean up the image path
+                    let cleanImage = image;
+                    // Remove any leading slashes or parent directory references
+                    cleanImage = cleanImage.replace(/^\.\//, '').replace(/^\//, '');
+                    
+                    // Construct the full URL
+                    const imageUrl = `${basePath}/${cleanImage}`;
+                    
+                    // Skip if we've already processed this image
+                    if (imagesWithDimensions.some(img => img.src === imageUrl)) continue;
+                    
                     const dimensions = await getImageDimensions(imageUrl);
-                    return {
+                    imagesWithDimensions.push({
                         src: imageUrl,
                         width: dimensions.width,
-                        height: dimensions.height
-                    };
-                })
-            );
+                        height: dimensions.height,
+                        alt: cleanCoupleId.replace(/[xX]/, ' & ')
+                    });
+                } catch (err) {
+                    console.warn(`Error processing image ${image}:`, err);
+                }
+            }
+            
+            if (imagesWithDimensions.length === 0) {
+                console.warn(`No valid images found in directory: ${basePath}/`);
+            }
             
             return imagesWithDimensions;
         } catch (error) {
@@ -1055,8 +1084,10 @@
             
             // Create a slide for each couple
             for (const folder of coupleFolders) {
-                const coupleId = folder;
-                const names = formatCoupleName(folder.replace(/[^a-zA-ZxX]/g, ''));
+                // Clean the folder name to ensure it's just the couple ID
+                const coupleId = folder.replace(/[\\\/]+$/, '').replace(/^.*[\\\/]/, '');
+                const names = formatCoupleName(coupleId.replace(/[^a-zA-ZxX]/g, ''));
+                console.log('Processing couple:', coupleId, 'Names:', names);
                 const images = await getCoupleImages(coupleId);
                 
                 if (images.length === 0) continue;
@@ -1079,8 +1110,12 @@
                 slide.querySelector('.couple-link').addEventListener('click', async (e) => {
                     e.preventDefault();
                     
+                    // Clean the coupleId to ensure no path segments
+                    const cleanCoupleId = coupleId.replace(/^.*[\\/]/, '');
+                    console.log('Loading images for couple:', cleanCoupleId);
+                    
                     // Ensure 'items' includes width and height for each image
-                    const items = await getCoupleImages(coupleId);
+                    const items = await getCoupleImages(cleanCoupleId);
                     
                     // Exit if there are no images to show
                     if (!items || items.length === 0) {
