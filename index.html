@@ -959,21 +959,27 @@
     // Helper function to get image dimensions
     function getImageDimensions(url) {
         return new Promise((resolve) => {
+            // Clean up the URL to prevent path duplication
+            const cleanUrl = url.replace(/(image\/gallery\/pre_wedding\/[^/]+)(?:\/image\/gallery\/pre_wedding\/[^/]+\/)/, '$1/');
+            
             const img = new Image();
             img.onload = function() {
                 resolve({
                     width: this.naturalWidth,
-                    height: this.naturalHeight
+                    height: this.naturalHeight,
+                    src: this.src // Return the actual resolved URL
                 });
             };
             img.onerror = function() {
+                console.warn('Failed to load image:', cleanUrl);
                 // Fallback dimensions if image fails to load
                 resolve({
                     width: 1200,
-                    height: 800
+                    height: 800,
+                    src: cleanUrl
                 });
             };
-            img.src = url;
+            img.src = cleanUrl;
         });
     }
 
@@ -1026,11 +1032,11 @@
                     // Skip if we've already processed this image
                     if (imagesWithDimensions.some(img => img.src === imageUrl)) continue;
                     
-                    const dimensions = await getImageDimensions(imageUrl);
+                    const result = await getImageDimensions(imageUrl);
                     imagesWithDimensions.push({
-                        src: imageUrl,
-                        width: dimensions.width,
-                        height: dimensions.height,
+                        src: result.src, // Use the cleaned URL from getImageDimensions
+                        width: result.width,
+                        height: result.height,
                         alt: cleanCoupleId.replace(/[xX]/, ' & ')
                     });
                 } catch (err) {
