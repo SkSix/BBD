@@ -980,7 +980,8 @@
     // Function to get all images from a folder with their actual dimensions
     async function getCoupleImages(coupleId) {
         try {
-            const response = await fetch(`image/gallery/pre_wedding/${coupleId}/`);
+            const basePath = `image/gallery/pre_wedding/${coupleId}`;
+            const response = await fetch(`${basePath}/`);
             const text = await response.text();
             const parser = new DOMParser();
             const doc = parser.parseFromString(text, 'text/html');
@@ -994,11 +995,15 @@
                     const ext = href.toLowerCase().substring(href.lastIndexOf('.'));
                     return imageExtensions.includes(ext);
                 });
-            
-            // Process images in parallel to get their dimensions
+                
+            if (imageFiles.length === 0) return [];
+                
+            // Get actual image dimensions for each image
             const imagesWithDimensions = await Promise.all(
                 imageFiles.map(async (image) => {
-                    const imageUrl = `image/gallery/pre_wedding/${coupleId}/${image}`;
+                    // Remove any duplicate path segments
+                    const cleanImagePath = image.replace(/^\//, ''); // Remove leading slash if present
+                    const imageUrl = `${basePath}/${cleanImagePath}`;
                     const dimensions = await getImageDimensions(imageUrl);
                     return {
                         src: imageUrl,
