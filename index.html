@@ -115,7 +115,6 @@
     </style>
 </head>
 <body>
-    <!-- Header Section -->
     <div id="header-placeholder"></div>
     <script>
       fetch("header.html?nocache=" + Date.now())
@@ -125,7 +124,6 @@
         });
     </script>
 
-    <!-- Hero Section -->
     <section class="hero-card">
         <div class="hero-left">
             <h1>
@@ -136,7 +134,6 @@
 </h1>
             <p class="tagline">turning real happiness into pictures with us</p>
             <form id="heroContactForm" class="hero-form">
-                <!-- Message modal will be inserted here by JavaScript -->
                 <div class="form-row">
                     <input type="text" name="firstName" placeholder="*First Name" required>
                     <input type="text" name="lastName" placeholder="*Last Name" required>
@@ -330,7 +327,6 @@
         </script>
     </section>
 
-    <!-- About Love Section -->
     <section class="about-love-card">
         <img src="image/floral-left.png" alt="Floral Left" class="floral floral-left" />
         <div class="about-love-content">
@@ -348,7 +344,6 @@
     </section>
 
 
-    <!-- Memories Section -->
     <section class="memories-section">
         <div class="memories-title-row">
             <div class="memories-line"></div>
@@ -359,7 +354,6 @@
             <div class="memories-line"></div>
         </div>
         <div class="memories-cards" id="memories-cards">
-            <!-- Cards will be populated by JavaScript -->
             <div class="memory-card loading" id="prewedding-card">
                 <div class="loading-spinner"></div>
                 <span class="memory-label">PRE-WEDDING</span>
@@ -385,7 +379,7 @@
         async function loadFirstImages() {
             try {
                 // Fetch gallery items
-                const response = await fetch('gallery-items.html');
+                const response = await fetch('gallery-items.html?nocache=' + Date.now());
                 const html = await response.text();
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(html, 'text/html');
@@ -405,16 +399,17 @@
                                 card.innerHTML = `
                                     <a href="gallery.html?filter=${category}" class="memory-card-link">
                                         <div class="memory-card-image" style="background-image: url('${img.src}');"></div>
-                                        <span class="memory-label">${category.toUpperCase()}</span>
+                                        <span class="memory-label">${category.toUpperCase().replace('-', ' ')}</span>
                                     </a>
                                 `;
+                                card.classList.remove('loading');
                             }
                         }
                     }
                 });
                 
             } catch (error) {
-                console.error('Error loading gallery images:', error);
+                console.error('Error loading gallery images for memories section:', error);
             }
         }
         
@@ -470,9 +465,9 @@
     .loading-spinner {
         width: 30px;
         height: 30px;
-        border: 3px solid rgba(255, 255, 255, 0.3);
+        border: 3px solid rgba(0, 0, 0, 0.2);
         border-radius: 50%;
-        border-top-color: #fff;
+        border-top-color: #333;
         animation: spin 1s ease-in-out infinite;
         margin-bottom: 10px;
     }
@@ -486,7 +481,7 @@
         background: rgba(0, 0, 0, 0.5);
         color: RGB(255, 214, 0);
         padding: 10px 25px;
-        margin: 140px auto 0;
+        margin: auto;
         border-radius: 20px;
         font-size: 14px;
         font-weight: 600;
@@ -575,7 +570,7 @@
             color: #c9a063;
             width: 40px;
             height: 40px;
-            background: rgba(255, 255, 255, 0);
+            background: rgba(255, 255, 255, 0.8);
             border-radius: 50%;
             align-items: center;
             justify-content: center;
@@ -586,7 +581,7 @@
         .swiper-button-next:hover,
         .swiper-button-prev:hover {
             color: #b38c4a;
-            transform: scale(1.2);
+            transform: scale(1.1);
         }
     }
     
@@ -608,42 +603,13 @@
         width: 100%;
         height: 250px;
         object-fit: cover;
-        border-radius: 8px 8px 0 0;
-        transition: transform 0.3s ease, opacity 0.3s ease;
-        opacity: 0;
-        will-change: transform, opacity;
-        image-rendering: -webkit-optimize-contrast;
-        image-rendering: -moz-crisp-edges;
-        image-rendering: -o-crisp-edges;
-        image-rendering: crisp-edges;
-        -ms-interpolation-mode: nearest-neighbor;
-    }
-
-    .couple-image.loaded {
-        opacity: 1;
+        transition: transform 0.3s ease;
     }
 
     .image-container {
         position: relative;
         background: #f5f5f5;
         min-height: 250px;
-    }
-
-    .loading-spinner {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 30px;
-        height: 30px;
-        border: 3px solid rgba(0, 0, 0, 0.1);
-        border-radius: 50%;
-        border-top-color: #3498db;
-        animation: spin 1s ease-in-out infinite;
-    }
-
-    @keyframes spin {
-        to { transform: translate(-50%, -50%) rotate(360deg); }
     }
 
     @media (max-width: 768px) {
@@ -706,19 +672,11 @@
         .swiper-container {
             padding: 20px 30px 50px;
         }
-        
-        .couple-image {
-            height: 250px;
-        }
     }
     
     @media (max-width: 480px) {
         .swiper-container {
             padding: 20px 15px 40px;
-        }
-        
-        .couple-image {
-            height: 200px;
         }
     }
 
@@ -726,7 +684,6 @@
         font-size: 1.5rem;
         font-weight: 600;
         margin: 0 0 5px 0;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
     }
 
     .couple-location {
@@ -736,12 +693,6 @@
     }
 
     @media (max-width: 768px) {
-        .couples-grid {
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            padding: 0 20px;
-            gap: 20px;
-        }
-        
         .couple-names {
             font-size: 1.3rem;
         }
@@ -750,19 +701,20 @@
 
     <style>
     /* Additional styles for the pre-wedding section */
-    .no-couples, .error {
+    .no-couples, .error-message {
         text-align: center;
         grid-column: 1 / -1;
         padding: 40px;
         color: #666;
         font-size: 1.1rem;
+        width: 100%;
     }
     
-    .error {
+    .error-message {
         color: #d32f2f;
     }
     
-    .couple-link {
+    .couple-card-link {
         text-decoration: none;
         color: inherit;
         display: block;
@@ -770,7 +722,6 @@
     }
     </style>
 
-    <!-- Pre-Wedding Section -->
     <section class="pre-wedding-section">
         <div class="memories-title-row">
             <div class="memories-line"></div>
@@ -780,29 +731,21 @@
             </div>
             <div class="memories-line"></div>
         </div>
-        <!-- Slider main container -->
         <div class="swiper-container">
-            <!-- Additional required wrapper -->
             <div class="swiper-wrapper" id="couples-grid">
-                <!-- Slides will be added here by JavaScript -->
                 <div class="swiper-slide loading-slide">
                     <div class="loading-spinner"></div>
                 </div>
             </div>
-            <!-- Navigation buttons -->
             <div class="swiper-button-prev"></div>
             <div class="swiper-button-next"></div>
-            <!-- Pagination -->
             <div class="swiper-pagination"></div>
         </div>
     </section>
     
-    <!-- Add Swiper CSS -->
     <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css">
-    <!-- Add Swiper JS -->
     <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
 
-    <!-- Our Team & Office Section -->
     <section class="our-team-wrapper">
         <h2 class="our-team-title">Our team &amp; office</h2>
         <div class="our-team-section">
@@ -829,7 +772,6 @@
         </div>
     </section>
 
-    <!-- Counter Section -->
     <section class="counter-section">
         <div class="counter-row">
             <div class="counter-item">
@@ -895,7 +837,6 @@
         });
     </script>
 
-    <!-- Get a Call Section -->
     <section class="cta-section">
         <h2 class="cta-title">Let us hear your story</h2>
         <p class="cta-desc">
@@ -968,7 +909,6 @@
         </script>
     </section>
 
-    <!-- Footer Section -->
     <div id="footer-placeholder"></div>
     <script>
       fetch("footer.html?nocache=" + Date.now())
@@ -981,152 +921,17 @@
     <script src="js/header.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/photoswipe@5.4.2/dist/umd/photoswipe.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/photoswipe@5.4.2/dist/umd/photoswipe-lightbox.umd.min.js"></script>
+
     <script>
-    // Function to format couple names from folder name
-    function formatCoupleName(folderName) {
-        const names = folderName.split(/[xX]/).map(name => {
-            return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
-        });
-        return names.length >= 2 ? `${names[0]} & ${names[1]}` : names[0] || 'Couple';
-    }
+    // Initialize PhotoSwipe Lightbox
+    // This part remains for any potential future use, but the slider will drive its own logic.
+    const lightbox = new PhotoSwipeLightbox({
+        gallery: '#couples-grid',
+        children: 'a',
+        pswpModule: PhotoSwipe
+    });
+    lightbox.init();
 
-    // Helper function to get image dimensions
-    function getImageDimensions(url) {
-        return new Promise((resolve) => {
-            // Clean up the URL to prevent path duplication
-            const cleanUrl = url.replace(/(image\/gallery\/pre_wedding\/[^/]+)(?:\/image\/gallery\/pre_wedding\/[^/]+\/)/, '$1/');
-            
-            const img = new Image();
-            img.onload = function() {
-                resolve({
-                    width: this.naturalWidth,
-                    height: this.naturalHeight,
-                    src: this.src // Return the actual resolved URL
-                });
-            };
-            img.onerror = function() {
-                console.warn('Failed to load image:', cleanUrl);
-                // Fallback dimensions if image fails to load
-                resolve({
-                    width: 1200,
-                    height: 800,
-                    src: cleanUrl
-                });
-            };
-            img.src = cleanUrl;
-        });
-    }
-
-    // Function to get all images from a folder with their actual dimensions
-    async function getCoupleImages(coupleId) {
-        try {
-            // Clean up the coupleId to remove any path segments
-            const cleanCoupleId = coupleId.replace(/^.*[\\\/]/, ''); // Remove any path before the folder name
-            const basePath = `image/gallery/pre_wedding/${cleanCoupleId}`;
-            const response = await fetch(`${basePath}/`);
-            
-            if (!response.ok) {
-                throw new Error(`Failed to fetch directory: ${response.status} ${response.statusText}`);
-            }
-            
-            const text = await response.text();
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(text, 'text/html');
-            const links = Array.from(doc.querySelectorAll('a'));
-            
-            const imageExtensions = ['.jpg', '.jpeg', '.png', '.webp'];
-            const imageFiles = links
-                .map(link => link.getAttribute('href'))
-                .filter(href => {
-                    if (!href) return false;
-                    // Skip parent directory and any non-image files
-                    if (href === '../' || href === './' || href.endsWith('/')) return false;
-                    const ext = href.toLowerCase().substring(href.lastIndexOf('.'));
-                    return imageExtensions.includes(ext);
-                });
-                
-            if (imageFiles.length === 0) {
-                console.warn(`No images found in directory: ${basePath}/`);
-                return [];
-            }
-            
-            // Get actual image dimensions for each image
-            const imagesWithDimensions = [];
-            
-            for (const image of imageFiles) {
-                try {
-                    // Clean up the image path
-                    let cleanImage = image;
-                    // Remove any leading slashes or parent directory references
-                    cleanImage = cleanImage.replace(/^\.\//, '').replace(/^\//, '');
-                    
-                    // Construct the full URL
-                    const imageUrl = `${basePath}/${cleanImage}`;
-                    
-                    // Skip if we've already processed this image
-                    if (imagesWithDimensions.some(img => img.src === imageUrl)) continue;
-                    
-                    const result = await getImageDimensions(imageUrl);
-                    imagesWithDimensions.push({
-                        src: result.src, // Use the cleaned URL from getImageDimensions
-                        width: result.width,
-                        height: result.height,
-                        alt: cleanCoupleId.replace(/[xX]/, ' & ')
-                    });
-                } catch (err) {
-                    console.warn(`Error processing image ${image}:`, err);
-                }
-            }
-            
-            if (imagesWithDimensions.length === 0) {
-                console.warn(`No valid images found in directory: ${basePath}/`);
-            }
-            
-            return imagesWithDimensions;
-        } catch (error) {
-            console.error('Error loading couple images:', error);
-            return [];
-        }
-    }
-
-    // Initialize lazy loading with Intersection Observer
-    function initLazyLoading() {
-        const lazyImages = document.querySelectorAll('img.lazyload');
-        
-        if ('IntersectionObserver' in window) {
-            const imageObserver = new IntersectionObserver((entries, observer) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const img = entry.target;
-                        if (img.dataset.src) {
-                            // Load the actual image
-                            const src = img.dataset.src;
-                            img.addEventListener('load', () => {
-                                img.classList.add('loaded');
-                                img.parentNode.querySelector('.loading-spinner')?.remove();
-                            });
-                            img.src = src;
-                            img.removeAttribute('data-src');
-                            imageObserver.unobserve(img);
-                        }
-                    }
-                });
-            }, {
-                rootMargin: '100px 0px', // Start loading 100px before the image comes into view
-                threshold: 0.01
-            });
-
-            lazyImages.forEach(img => imageObserver.observe(img));
-        } else {
-            // Fallback for browsers that don't support IntersectionObserver
-            lazyImages.forEach(img => {
-                if (img.dataset.src) {
-                    img.src = img.dataset.src;
-                    img.removeAttribute('data-src');
-                }
-            });
-        }
-    }
 
     // Initialize Swiper slider for pre-wedding stories
     document.addEventListener('DOMContentLoaded', async function() {
@@ -1141,138 +946,110 @@
                 </div>
             `;
             
-            // Fetch couple folders
-            const response = await fetch('image/gallery/pre_wedding/');
-            const text = await response.text();
+            // ===================================================================
+            // START OF NEW LOGIC 1
+            // ===================================================================
+
+            // 1. Fetch the generated gallery-items.html file
+            const response = await fetch('gallery-items.html?nocache=' + Date.now());
+            if (!response.ok) {
+                throw new Error('Could not load gallery-items.html');
+            }
+            const galleryText = await response.text();
+            
+            // 2. Parse the HTML to find all pre-wedding items
             const parser = new DOMParser();
-            const doc = parser.parseFromString(text, 'text/html');
-            
-            const links = Array.from(doc.querySelectorAll('a'));
-            const coupleFolders = links
-                .map(link => link.getAttribute('href'))
-                .filter(href => href && !href.includes('.') && href !== '../')
-                .map(href => href.replace(/\/$/, ''));
-            
-            if (coupleFolders.length === 0) {
+            const galleryDoc = parser.parseFromString(galleryText, 'text/html');
+            const preWeddingItems = galleryDoc.querySelectorAll('.gallery-item.category-pre-wedding');
+
+            if (preWeddingItems.length === 0) {
                 swiperWrapper.innerHTML = '<div class="swiper-slide"><p class="no-couples">No pre-wedding albums found.</p></div>';
                 return;
             }
-            
-            // Clear loading state
+
+            // 3. Create a unique list of couples using the 'data-couple' attribute
+            const couples = new Map();
+            preWeddingItems.forEach(item => {
+                const coupleName = item.dataset.couple;
+                if (coupleName && !couples.has(coupleName)) {
+                    // Store the couple name and the path to their first image
+                    couples.set(coupleName, {
+                        name: coupleName,
+                        thumbnail: item.querySelector('img').getAttribute('src'),
+                        // We can add all images for the lightbox here
+                        images: [] 
+                    });
+                }
+            });
+
+            // (Optional but recommended) Populate the images array for the lightbox
+             preWeddingItems.forEach(item => {
+                const coupleName = item.dataset.couple;
+                if(couples.has(coupleName)) {
+                    const imgSrc = item.querySelector('img').getAttribute('src');
+                    // In a real scenario you would also fetch image dimensions here
+                    couples.get(coupleName).images.push({
+                        src: imgSrc,
+                        width: 1200, // example width
+                        height: 800, // example height
+                        alt: coupleName
+                    });
+                }
+            });
+
+
+            // 4. Clear loading state and build the slider
             swiperWrapper.innerHTML = '';
             
-            // Create a slide for each couple
-            for (const folder of coupleFolders) {
-                // Clean the folder name to ensure it's just the couple ID
-                const coupleId = folder.replace(/[\\\/]+$/, '').replace(/^.*[\\\/]/, '');
-                const names = formatCoupleName(coupleId.replace(/[^a-zA-ZxX]/g, ''));
-                console.log('Processing couple:', coupleId, 'Names:', names);
-                const images = await getCoupleImages(coupleId);
-                
-                if (images.length === 0) continue;
-                
+            for (const [key, couple] of couples.entries()) {
                 const slide = document.createElement('div');
                 slide.className = 'swiper-slide';
-                // Create a low-quality image placeholder (LQIP) for faster initial load
-                const lqip = images[0].src.replace(/\.(jpg|jpeg|png)/i, '-thumbnail.$1') || 'image/placeholder.jpg';
                 
+                // Use the data we extracted to build the slide
                 slide.innerHTML = `
-                    <div class="couple-card">
-                        <div class="couple-link" data-couple-id="${coupleId}">
+                    <a href="#" class="couple-card-link" data-couple-name="${couple.name}">
+                        <div class="couple-card">
                             <div class="image-container">
-                                <!-- Low quality image placeholder (LQIP) -->
                                 <img 
-                                    src="${lqip}" 
-                                    data-src="${images[0].src}" 
-                                    alt="${names}" 
-                                    class="couple-image lazyload"
+                                    src="${couple.thumbnail}" 
+                                    alt="${couple.name}" 
+                                    class="couple-image"
                                     loading="lazy"
-                                    onerror="this.src='image/placeholder.jpg'; this.onerror=null;"
                                 >
-                                <div class="loading-spinner"></div>
                             </div>
                             <div class="couple-info">
-                                <h3 class="couple-names">${names}</h3>
-                                <p>${images.length} photos</p>
+                                <h3 class="couple-names">${couple.name}</h3>
+                                <p>${couple.images.length} Photos</p>
                             </div>
                         </div>
-                    </div>
+                    </a>
                 `;
-                
-                // Add click handler for the lightbox
-                slide.querySelector('.couple-link').addEventListener('click', async (e) => {
+
+                // Add click listener to open the correct lightbox
+                slide.querySelector('.couple-card-link').addEventListener('click', (e) => {
                     e.preventDefault();
+                    const clickedCoupleName = e.currentTarget.dataset.coupleName;
+                    const coupleData = couples.get(clickedCoupleName);
                     
-                    // Clean the coupleId to ensure no path segments
-                    const cleanCoupleId = coupleId.replace(/^.*[\\/]/, '');
-                    console.log('Loading images for couple:', cleanCoupleId);
-                    
-                    // Ensure 'items' includes width and height for each image
-                    const items = await getCoupleImages(cleanCoupleId);
-                    
-                    // Exit if there are no images to show
-                    if (!items || items.length === 0) {
-                        console.error('No items found for the lightbox.');
-                        return;
+                    if (coupleData && coupleData.images.length > 0) {
+                        const pswpLightbox = new PhotoSwipe({
+                            dataSource: coupleData.images,
+                            pswpModule: PhotoSwipe
+                        });
+                        pswpLightbox.init();
+                        pswpLightbox.loadAndOpen(0);
+                    } else {
+                        alert('Could not load images for this gallery.');
                     }
-                    
-                    const lightbox = new PhotoSwipeLightbox({
-                        // The dataSource is now the primary source of truth
-                        dataSource: items,
-                        pswpModule: PhotoSwipe,
-                        bgOpacity: 0.9,
-                        showHideAnimationType: 'zoom',
-                        imageScaleMethod: 'fit',
-                        maxZoomLevel: 3,
-                        paddingFn: () => ({ top: 40, bottom: 40, left: 20, right: 20 }),
-                        preload: [1, 1],
-                    });
-                    
-                    // Add custom UI elements
-                    lightbox.on('uiRegister', function() {
-                        // Add caption
-                        lightbox.pswp.ui.registerElement({
-                            name: 'custom-caption',
-                            order: 9,
-                            isButton: false,
-                            appendTo: 'root',
-                            html: names,
-                            onInit: (el, pswp) => {
-                                pswp.on('change', () => {
-                                    const currItem = pswp.currSlide.data;
-                                    el.innerHTML = currItem.alt || names; 
-                                });
-                            }
-                        });
-                        
-                        // Add custom close button
-                        lightbox.pswp.ui.registerElement({
-                            name: 'custom-close-button',
-                            order: 1,
-                            isButton: true,
-                            tagName: 'button',
-                            html: `
-                                <div class="pswp__button--custom-close" title="Close (Esc)">
-                                    <svg viewBox="0 0 24 24" width="24" height="24">
-                                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
-                                    </svg>
-                                </div>
-                            `,
-                            onInit: (el, pswp) => {
-                                el.setAttribute('aria-label', 'Close');
-                                el.onclick = () => pswp.close();
-                            }
-                        });
-                    });
-                    
-                    lightbox.init();
-                    lightbox.loadAndOpen(0);
                 });
                 
                 swiperWrapper.appendChild(slide);
             }
-            
-            // Initialize Swiper after all slides are added
+            // ===================================================================
+            // END OF NEW LOGIC 1
+            // ===================================================================
+
+            // 5. Initialize Swiper
             const swiper = new Swiper('.swiper-container', {
                 slidesPerView: 1.2,
                 spaceBetween: 15,
@@ -1293,70 +1070,31 @@
                     prevEl: '.swiper-button-prev',
                 },
                 breakpoints: {
-                    480: {
-                        slidesPerView: 1.3,
-                        spaceBetween: 20,
-                    },
-                    640: {
-                        slidesPerView: 1.8,
-                        spaceBetween: 25,
-                        centeredSlides: false,
-                    },
-                    768: {
-                        slidesPerView: 2.5,
-                        spaceBetween: 30,
-                        centeredSlides: false,
-                    },
-                    1024: {
-                        slidesPerView: 3,
-                        spaceBetween: 30,
-                        centeredSlides: false,
-                    },
+                    480: { slidesPerView: 1.3, spaceBetween: 20 },
+                    640: { slidesPerView: 1.8, spaceBetween: 25, centeredSlides: false },
+                    768: { slidesPerView: 2.5, spaceBetween: 30, centeredSlides: false },
+                    1024: { slidesPerView: 3, spaceBetween: 30, centeredSlides: false },
                 },
-                // Better touch support
-                touchRatio: 1.5,
-                touchAngle: 45,
                 grabCursor: true,
-                // Performance optimizations
-                watchSlidesProgress: true,
-                preloadImages: false,
-                lazy: {
-                    loadPrevNext: true,
-                    loadOnTransitionStart: true,
-                },
-                // Keyboard control
-                keyboard: {
-                    enabled: true,
-                    onlyInViewport: true,
-                },
-                // Accessibility
+                keyboard: { enabled: true, onlyInViewport: true },
                 a11y: {
                     prevSlideMessage: 'Previous slide',
                     nextSlideMessage: 'Next slide',
-                    firstSlideMessage: 'This is the first slide',
-                    lastSlideMessage: 'This is the last slide',
                     paginationBulletMessage: 'Go to slide {{index}}',
                 },
             });
             
-            // Pause autoplay when window loses focus
             document.addEventListener('visibilitychange', function() {
-                if (document.hidden) {
-                    swiper.autoplay.stop();
-                } else {
-                    swiper.autoplay.start();
-                }
+                if (document.hidden) { swiper.autoplay.stop(); } else { swiper.autoplay.start(); }
             });
-            
-            // Initialize lazy loading after Swiper is set up
-            initLazyLoading();
             
         } catch (error) {
             console.error('Error loading pre-wedding couples:', error);
-            swiperWrapper.innerHTML = '<div class="swiper-slide"><p class="error">Error loading pre-wedding albums. Please try again later.</p></div>';
+            swiperWrapper.innerHTML = '<div class="swiper-slide"><p class="error-message">Error loading pre-wedding albums. Please check the console.</p></div>';
         }
     });
     </script>
+    
     <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="pswp__bg"></div>
         <div class="pswp__scroll-wrap">
