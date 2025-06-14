@@ -4,8 +4,9 @@
   "description": "Wedding Photography Website",
   "main": "generate-gallery.js",
   "scripts": {
-    "dev": "node generate-gallery.js",
-    "build": "node generate-gallery.js",
-    "start": "node generate-gallery.js"
+    "build": "node generate-gallery.js"
+  },
+  "dependencies": {
+    "image-size": "^1.1.1"
   }
 }

@@ -923,93 +923,40 @@
     <script src="https://cdn.jsdelivr.net/npm/photoswipe@5.4.2/dist/umd/photoswipe-lightbox.umd.min.js"></script>
 
     <script>
-        // ===================================================================
-        // START: HELPER FUNCTION TO GET IMAGE DIMENSIONS (from your BKP file)
-        // ===================================================================
-        const imageDimensionCache = new Map();
-    
-        function getImageDimensions(url) {
-            // Check cache first to avoid re-fetching
-            if (imageDimensionCache.has(url)) {
-                return Promise.resolve(imageDimensionCache.get(url));
-            }
-    
-            return new Promise((resolve) => {
-                const img = new Image();
-                img.onload = function() {
-                    const dimensions = {
-                        width: this.naturalWidth,
-                        height: this.naturalHeight,
-                        src: url
-                    };
-                    // Store in cache for future use
-                    imageDimensionCache.set(url, dimensions);
-                    resolve(dimensions);
-                };
-                img.onerror = function() {
-                    console.warn('Failed to load image for dimension check:', url);
-                    // Fallback dimensions if image fails to load
-                    resolve({ width: 1200, height: 800, src: url });
-                };
-                img.src = url;
-            });
-        }
-        // ===================================================================
-        // END: HELPER FUNCTION
-        // ===================================================================
-    
-    
-        // Initialize Swiper slider for pre-wedding stories
         document.addEventListener('DOMContentLoaded', async function() {
             const swiperWrapper = document.getElementById('couples-grid');
             if (!swiperWrapper) return;
             
             try {
-                // Show loading state
-                swiperWrapper.innerHTML = `
-                    <div class="swiper-slide loading-slide">
-                        <div class="loading-spinner"></div>
-                    </div>
-                `;
+                swiperWrapper.innerHTML = `<div class="swiper-slide loading-slide"><div class="loading-spinner"></div></div>`;
                 
-                // 1. Fetch the generated gallery-items.html file
-                const response = await fetch('gallery-items.html?nocache=' + Date.now());
-                if (!response.ok) {
-                    throw new Error('Could not load gallery-items.html');
-                }
-                const galleryText = await response.text();
+                // 1. Fetch the single, pre-generated data file
+                const response = await fetch('gallery-data.json?nocache=' + Date.now());
+                if (!response.ok) throw new Error('Could not load gallery-data.json');
+                const galleryData = await response.json();
                 
-                // 2. Parse the HTML to find all pre-wedding items
-                const parser = new DOMParser();
-                const galleryDoc = parser.parseFromString(galleryText, 'text/html');
-                const preWeddingItems = galleryDoc.querySelectorAll('.gallery-item.category-pre-wedding');
+                const preWeddingImages = galleryData['pre-wedding'] || [];
     
-                if (preWeddingItems.length === 0) {
+                if (preWeddingImages.length === 0) {
                     swiperWrapper.innerHTML = '<div class="swiper-slide"><p class="no-couples">No pre-wedding albums found.</p></div>';
                     return;
                 }
     
-                // 3. Create a unique map of couples and their images
+                // 2. Group all images by couple name
                 const couples = new Map();
-                preWeddingItems.forEach(item => {
-                    const coupleName = item.dataset.couple;
-                    if (!coupleName) return;
-    
+                preWeddingImages.forEach(img => { // 'img' object already contains src, width, and height
+                    const coupleName = img.couple;
                     if (!couples.has(coupleName)) {
                         couples.set(coupleName, {
                             name: coupleName,
-                            thumbnail: item.querySelector('img').getAttribute('src'),
-                            // Store only the image URLs for now
-                            imageUrls: [] 
+                            thumbnail: img.src, // Use the first image as the thumbnail
+                            images: [] 
                         });
                     }
-                    
-                    // Add the image URL to this couple's array
-                    const imgSrc = item.querySelector('img').getAttribute('src');
-                    couples.get(coupleName).imageUrls.push(imgSrc);
+                    couples.get(coupleName).images.push(img);
                 });
     
-                // 4. Clear loading state and build the slider
+                // 3. Clear loading state and build the slider
                 swiperWrapper.innerHTML = '';
                 
                 for (const [key, couple] of couples.entries()) {
@@ -1020,110 +967,61 @@
                         <a href="#" class="couple-card-link" data-couple-name="${couple.name}">
                             <div class="couple-card">
                                 <div class="image-container">
-                                    <img 
-                                        src="${couple.thumbnail}" 
-                                        alt="${couple.name}" 
-                                        class="couple-image"
-                                        loading="lazy"
-                                    >
+                                    <img src="${couple.thumbnail}" alt="${couple.name}" class="couple-image" loading="lazy">
                                 </div>
                                 <div class="couple-info">
                                     <h3 class="couple-names">${couple.name}</h3>
-                                    <p>${couple.imageUrls.length} Photos</p>
+                                    <p>${couple.images.length} Photos</p>
                                 </div>
                             </div>
                         </a>
                     `;
-                    
                     swiperWrapper.appendChild(slide);
                 }
     
-                // ===================================================================
-                // START OF CORRECTED LIGHTBOX LOGIC WITH DIMENSIONS
-                // ===================================================================
-                
-                // 5. Initialize the Lightbox object ONCE.
+                // 4. Initialize the Lightbox object ONCE. It's ready for data.
                 const pswpLightbox = new PhotoSwipeLightbox({
                     pswpModule: PhotoSwipe,
                     bgOpacity: 0.95,
                     showHideAnimationType: 'zoom'
                 });
-                pswpLightbox.init(); // Initialize it once
+                pswpLightbox.init();
     
-                // 6. Add a single click listener to the container.
-                swiperWrapper.addEventListener('click', async function(e) {
+                // 5. Add a single click listener that opens the lightbox INSTANTLY.
+                swiperWrapper.addEventListener('click', function(e) {
                     const clickedLink = e.target.closest('.couple-card-link');
                     if (!clickedLink) return;
-                    
                     e.preventDefault();
     
                     const clickedCoupleName = clickedLink.dataset.coupleName;
                     const coupleData = couples.get(clickedCoupleName);
     
-                    if (coupleData && coupleData.imageUrls.length > 0) {
-                        
-                        // Optional: Show a loading state to the user
-                        const info = clickedLink.querySelector('.couple-info p');
-                        const originalText = info.textContent;
-                        info.textContent = 'Loading...';
-    
-                        // 7. Fetch dimensions for all images in this album
-                        const imagesWithDimensions = await Promise.all(
-                            coupleData.imageUrls.map(url => getImageDimensions(url))
-                        );
-    
-                        // Restore original text
-                        info.textContent = originalText;
-                        
-                        // 8. Set the fresh dataSource and open the lightbox
-                        pswpLightbox.loadAndOpen(0, imagesWithDimensions);
-    
-                    } else {
-                        alert('Could not load images for this gallery.');
+                    if (coupleData && coupleData.images.length > 0) {
+                        // No fetching needed! Just load the data we already have.
+                        pswpLightbox.loadAndOpen(0, coupleData.images);
                     }
                 });
     
-                // ===================================================================
-                // END OF CORRECTED LIGHTBOX LOGIC
-                // ===================================================================
-                
-                // 9. Initialize Swiper
+                // 6. Initialize Swiper
                 const swiper = new Swiper('.swiper-container', {
+                    // (Your existing Swiper options go here)
                     slidesPerView: 1.2,
                     spaceBetween: 15,
                     loop: true,
                     centeredSlides: true,
-                    autoplay: {
-                        delay: 5000,
-                        disableOnInteraction: false,
-                        pauseOnMouseEnter: true,
-                    },
-                    pagination: {
-                        el: '.swiper-pagination',
-                        clickable: true,
-                        dynamicBullets: true,
-                    },
-                    navigation: {
-                        nextEl: '.swiper-button-next',
-                        prevEl: '.swiper-button-prev',
-                    },
+                    autoplay: { delay: 5000, disableOnInteraction: false },
+                    pagination: { el: '.swiper-pagination', clickable: true },
+                    navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
                     breakpoints: {
-                        480: { slidesPerView: 1.3, spaceBetween: 20 },
-                        640: { slidesPerView: 1.8, spaceBetween: 25, centeredSlides: false },
-                        768: { slidesPerView: 2.5, spaceBetween: 30, centeredSlides: false },
-                        1024: { slidesPerView: 3, spaceBetween: 30, centeredSlides: false },
-                    },
-                    grabCursor: true,
-                    keyboard: { enabled: true, onlyInViewport: true },
-                });
-                
-                document.addEventListener('visibilitychange', function() {
-                    if (document.hidden) { swiper.autoplay.stop(); } else { swiper.autoplay.start(); }
+                        640: { slidesPerView: 1.8, spaceBetween: 25 },
+                        768: { slidesPerView: 2.5, spaceBetween: 30 },
+                        1024: { slidesPerView: 3, spaceBetween: 30 },
+                    }
                 });
                 
             } catch (error) {
                 console.error('Error loading pre-wedding couples:', error);
-                swiperWrapper.innerHTML = '<div class="swiper-slide"><p class="error-message">Error loading pre-wedding albums. Please check the console.</p></div>';
+                swiperWrapper.innerHTML = '<div class="swiper-slide"><p class="error-message">Error loading albums.</p></div>';
             }
         });
         </script>
