@@ -485,7 +485,6 @@ body {
     box-shadow: 0 8px 32px 0 rgba(0,0,0,0.13), 0 2px 8px 0 rgba(0,0,0,0.06);
     max-width: 996px;
     margin: 48px auto 0 auto;
-    /*padding: 48px 60px 38px 60px;*/
     padding: 40px 52px 30px 52px;
     min-height: 230px;
     display: flex;
@@ -722,12 +721,15 @@ body {
     flex: 1 1 0;
     min-width: 0;
 }
-@media (max-width: 600px) {
+
+/* Breakpoint changed from 600px to 900px */
+@media (max-width: 900px) {
     .form-row {
         flex-direction: column;
         gap: 10px;
     }
 }
+/* === LATEST UPDATE === Added width and box-sizing for responsive select dropdown */
 .hero-form input,
 .hero-form select {
     padding: 12px 18px;
@@ -739,6 +741,8 @@ body {
     background: #fff;
     transition: border 0.2s;
     margin-bottom: 0;
+    width: 100%;
+    box-sizing: border-box;
 }
 .hero-form input:focus,
 .hero-form select:focus {
@@ -775,7 +779,6 @@ body {
     justify-content: center;
     background: #f8f4ee;
     position: relative;
-    /*padding: 0 20px;*/
     overflow: hidden;
 }
 .hero-right.carousel img {
@@ -812,32 +815,50 @@ body {
     background: #ffb300;
     transform: scale(1.15);
 }
-@media (max-width: 900px) {
-    .hero-right.carousel {
-        padding: 0 6vw;
-    }
-    .hero-right.carousel img {
-        max-width: 95vw;
-        height: 180px;
-        border-radius: 16px;
-    }
-}
 
 
+/* This entire block has been updated for better responsiveness */
 @media (max-width: 900px) {
     .hero-card {
         flex-direction: column;
         max-width: 98vw;
         min-height: unset;
+        height: auto; /* Let content define the height */
     }
     .hero-left, .hero-right {
-        padding: 32px 12px;
+        padding: 32px 18px; /* Standardized padding */
         max-width: 100%;
     }
-    .hero-right img {
-        max-width: 95vw;
-        max-height: 300px;
+
+    /* Responsive Font Sizes */
+    .hero-left h1,
+    .hero-left h1 .hero-text {
+        font-size: 1.8rem;
+        line-height: 1.2;
+    }
+    .hero-left h1 .highlight-gold {
+        font-size: 1.8rem;
+    }
+    .hero-left h1 span,
+    .hero-left h1 br + span {
+        font-size: 1.6rem;
+    }
+    .tagline {
+        font-size: 1rem;
+    }
+
+    /* Responsive Image with Aspect Ratio */
+    .hero-right.carousel {
+        padding: 0;
+    }
+    .hero-right.carousel img {
+        max-width: 100%;
+        width: 100%;
+        height: auto; /* Height is controlled by aspect-ratio */
+        aspect-ratio: 16 / 10; /* Keeps proportions, adjust if needed (e.g., 4/3) */
+        object-fit: cover; /* Prevents image distortion */
         border-radius: 22px;
+        max-height: none; /* Remove previous fixed height rule */
     }
 }
 
@@ -1043,7 +1064,7 @@ header {
         gap: 0;
         margin: 0;
         padding: 0;
-        perspective: 1000px; /* Add perspective for 3D rendering */
+        perspective: 1000px;
     }
     
     .menu li {
@@ -1121,14 +1142,7 @@ header {
         transition: opacity 0.3s ease, visibility 0.3s ease;
         visibility: hidden;
     }
-
-    /*.overlay.active {
-        display: block;
-        opacity: 1;
-        visibility: visible;
-    } */
     
-    /* Prevent body scroll when menu is open */
     body.menu-open {
         overflow: hidden;
         position: fixed;
@@ -1166,88 +1180,3 @@ header {
         max-width: 100%;
     }
 }
-
-/* --- About Us Page Alignment --- 
-.about-us-section {
-    background: #fff;
-    border-radius: 36px;
-    box-shadow: 0 8px 32px 0 rgba(0,0,0,0.10), 0 2px 8px 0 rgba(0,0,0,0.04);
-    max-width: 900px;
-    margin: 60px auto 40px auto;
-    padding: 48px 36px 40px 36px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.about-us-container {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.about-us-container h1 {
-    font-family: 'Lexend', Arial, sans-serif;
-    font-size: 2.5rem;
-    font-weight: 400;
-    color: #b48a78;
-    margin-bottom: 18px;
-    text-align: center;
-}
-
-.about-lead {
-    font-family: 'Lexend', Arial, sans-serif;
-    font-size: 1.2rem;
-    color: #444;
-    margin-bottom: 28px;
-    max-width: 700px;
-    text-align: center;
-}
-
-.about-details {
-    width: 100%;
-    max-width: 700px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.about-details h2 {
-    font-family: 'Lexend', Arial, sans-serif;
-    font-size: 1.3rem;
-    color: #ffb300;
-    margin: 22px 0 8px 0;
-    text-align: center;
-}
-
-.about-details p, .about-details ul {
-    font-family: 'Lexend', Arial, sans-serif;
-    font-size: 1rem;
-    color: #444;
-    margin-bottom: 12px;
-    text-align: center;
-    line-height: 1.5;
-}
-
-.about-details ul {
-    list-style: disc inside;
-    padding-left: 0;
-    margin-bottom: 18px;
-}
-
-.about-details li {
-    margin: 0 0 7px 0;
-    text-align: center;
-}
-
-@media (max-width: 700px) {
-    .about-us-section {
-        padding: 28px 8vw 28px 8vw;
-        max-width: 98vw;
-    }
-    .about-details, .about-lead {
-        max-width: 98vw;
-    }
-}
- --- End About Us Page Alignment --- */
