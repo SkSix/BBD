@@ -248,28 +248,38 @@ header {
     justify-content: center;
     overflow: visible;
 }
+/* About Love Card Typography */
 .about-love-card h2 {
-    font-size: 2rem;
-    font-weight: 400;
-    margin-bottom: 18px;
+    font-size: 1.5rem; /* Default for mobile */
+    font-weight: 500;
+    margin: 0 0 15px 0;
+    text-align: center;
+    color: #333;
+    line-height: 1.3;
 }
-/* Base mobile styles */
+
 .about-love-card p {
-    font-size: 14px;
-    line-height: 1.6;
+    font-size: 0.9rem !important;
+    line-height: 1.2 !important;
     font-weight: 300;
     text-align: center;
     color: #555;
     margin: 0 auto;
-    padding: 0 20px;
+    padding: 0 15px;
     max-width: 100%;
     box-sizing: border-box;
 }
 
 /* Small devices (landscape phones, 576px and up) */
 @media (min-width: 576px) {
+    .about-love-card h2 {
+        font-size: 1.8rem;
+        margin-bottom: 20px;
+        padding: 0 20px;
+    }
+    
     .about-love-card p {
-        font-size: 14px;
+        font-size: 1rem;
         padding: 0 30px;
     }
 }
@@ -316,7 +326,7 @@ header {
     pointer-events: none;
 }
 .floral-left { left: 2px; top: 0; }
-.floral-right { right: 2px; top: 130px; }
+.floral-right { right: 2px; top: 50px; }
 
 
 /* === Replace the old Memories section CSS with this block === */
@@ -844,8 +854,19 @@ header {
     font-weight: 300;
     margin-bottom: 10px;
 }
+
+.footer-col ul li a.footer-link {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.footer-col ul li a.footer-link:hover {
+    color: #b48a78;
+}
 .footer-social-icons {
     display: flex;
+    justify-content: center;
     gap: 15px;
     font-size: 24px;
 }
@@ -972,6 +993,36 @@ header {
     .floral-right { right: -20px; }
 }
 
+@media (max-width: 768px) {
+    .floral { 
+        width: 60px;
+        opacity: 0.7;
+    }
+    .floral-left { 
+        left: -15px;
+        top: 10px;
+    }
+    .floral-right { 
+        right: -15px;
+        top: 230px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .floral { 
+        width: 50px;
+        opacity: 0.6;
+    }
+    .floral-left { 
+        left: 5px;
+        top: 10px;
+    }
+    .floral-right { 
+        right: 5px;
+        top: 380px;
+    }
+}
+
 @media (max-width: 1024px) {
     .menu { gap: 15px; }
     .menu li a { font-size: 0.95rem; padding: 6px 10px; }
@@ -1055,4 +1106,6 @@ header {
     .counter-label { font-size: 0.75rem; }
     .memories-cards { gap: 10px; }
     .pre-wedding-section .swiper-container { padding: 20px 15px 40px; }
+    .footer-col { align-items: center; text-align: center; }
+    .footer-bottom { font-size: 12px; }
 }
