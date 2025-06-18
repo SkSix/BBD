@@ -425,6 +425,17 @@
         </div>
     </div>
 
+    <div id="footer-placeholder"></div>
+    <script>
+      fetch("footer.html?nocache=" + Date.now())
+        .then(response => response.text())
+        .then(data => {
+          document.getElementById("footer-placeholder").innerHTML = data;
+        });
+    </script>
+    <script src="js/script.js"></script>
+    <script src="js/header.js"></script>
+
     <script>
         // Gallery data will be loaded from the server
         let allImages = [];
