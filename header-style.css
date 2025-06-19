@@ -1151,3 +1151,28 @@ header {
     .footer-col { align-items: center; text-align: center; }
     .footer-bottom { font-size: 12px; }
 }
+
+/* In header-style.css or a new CSS file */
+
+.whatsapp-button {
+    position: fixed; /* Makes the button stay in place when scrolling */
+    bottom: 20px;    /* Adjust as needed for vertical position from bottom */
+    right: 20px;     /* Adjust as needed for horizontal position from right */
+    background-color: #25D366; /* WhatsApp green */
+    color: white;
+    border-radius: 50%; /* Makes it a perfect circle */
+    width: 60px;       /* Width of the button */
+    height: 60px;      /* Height of the button */
+    display: flex;     /* Use flexbox for centering the icon */
+    justify-content: center; /* Center horizontally */
+    align-items: center;     /* Center vertically */
+    font-size: 30px;   /* Size of the WhatsApp icon */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+    z-index: 1000;     /* Ensure it's on top of most other content */
+    text-decoration: none; /* Remove underline from the link */
+    transition: transform 0.2s ease-in-out; /* Smooth transition for hover effect */
+}
+
+.whatsapp-button:hover {
+    transform: scale(1.1); /* Slightly enlarge the button on hover */
+}
