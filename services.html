@@ -318,29 +318,30 @@
         background: #f8f0e6;
       }
       .hero-bg {
-        min-height: 330px;
+        min-height: 280px;
         display: flex;
         align-items: center;
         justify-content: center;
         padding: 48px 0;
         background: #f8f0e6;
+        box-sizing: border-box;
       }
       .hero-card {
-        margin-top: 0px;
+        margin: 0 auto;
         background: #fff url('image/services/hero/herobg.jpg') no-repeat center center;
         background-size: cover;
-        border-radius: 36px;
-        /*box-shadow: 0 4px 32px rgba(180,138,120,0.16);*/
+        border-radius: 40px;
         filter: drop-shadow(2px 3px 17px rgba(0, 0, 0, 0.16));
+        /*padding: 30px 24px;*/
         padding: 48px 42px 36px 100px;
-        max-width: 80vw;
-        width: 80vw;
-        min-height: 100px;
-        height: 400px;
+        width: 90%;
+        max-width: 1650px;
+        min-height: 500px;
         display: flex;
         flex-direction: column;
         align-items: flex-start;
         justify-content: center;
+        box-sizing: border-box;
       }
       .hero-card h1 {
         font-family: 'Lexend', Arial, sans-serif;
@@ -374,13 +375,50 @@
       .hero-btn:hover {
         background: #e0a000;
       }
-      @media (max-width: 700px) {
+      @media (max-width: 900px) {
+        .hero-bg {
+          padding: 20px 0;
+          min-height: 240px;
+        }
         .hero-card {
-          padding: 28px 12px 22px 12px;
+          width: 95%;
+          padding: 24px 20px;
           border-radius: 18px;
         }
         .hero-card h1 {
+          font-size: 1.5rem;
+          margin-bottom: 12px;
+        }
+        .hero-desc {
+          font-size: 0.8rem;
+          margin-bottom: 16px;
+          max-width: 100%;
+        }
+      }
+      
+      @media (max-width: 480px) {
+        .hero-bg {
+          min-height: 200px;
+          padding: 25px 0;
+        }
+        .hero-card {
+          width: 92%;
+          padding: 20px 16px;
+          border-radius: 14px;
+          min-height: 180px;
+        }
+        .hero-card h1 {
           font-size: 1.3rem;
+          margin-bottom: 10px;
+        }
+        .hero-desc {
+          font-size: 0.75rem;
+          margin-bottom: 14px;
+        }
+        .hero-btn {
+          padding: 5px 18px;
+          font-size: 0.8rem;
+          height: 32px;
         }
       }
     </style>
@@ -514,21 +552,32 @@
       }
       @media (max-width: 900px) {
         .services-grid {
-          grid-template-columns: 1fr 1fr;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 24px;
         }
         .service-card {
-          width: 160px;
-          height: 120px;
+          width: 100%;
+          height: 200px;
+          max-width: 100%;
         }
       }
       @media (max-width: 600px) {
         .services-grid {
           grid-template-columns: 1fr;
+          gap: 20px;
+          max-width: 500px;
+          margin: 0 auto;
         }
         .service-card {
-          width: 100%;
-          max-width: 320px;
-          height: 90px;
+          width: 300px;
+          height: 200px;
+          margin: 0 auto;
+        }
+        .services-title {
+          font-size: 2.2rem;
+        }
+        .services-subtitle {
+          padding: 0 10px;
         }
       }
     </style>
